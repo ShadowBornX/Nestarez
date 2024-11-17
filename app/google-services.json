@@ -1,0 +1,29 @@
+{
+  "project_info": {
+    "project_number": "17088639336",
+    "project_id": "nestarez-b0f98",
+    "storage_bucket": "nestarez-b0f98.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:17088639336:android:389d38c51794f2052ca6dd",
+        "android_client_info": {
+          "package_name": "com.example.nestarez"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyAOG0yoRKMOw8v6jw3dqeH0sIhQMYtqFaA"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
