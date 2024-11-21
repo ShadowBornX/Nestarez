@@ -39,11 +39,11 @@ import com.example.nestarez.R
 import com.example.nestarez.componentesUI.BotonGenerico
 import com.example.nestarez.componentesUI.CajaTextoGenerico
 import com.example.nestarez.componentesUI.CajaTextoGenericoDes
+import com.example.nestarez.componentesUI.MensajeToast
 import com.example.nestarez.componentesUI.SpinnerMenu
+import com.example.nestarez.fonts.fontFredoka
 
-val fontFredoka = FontFamily(
-    Font(resId = R.font.fredoka_regular, weight = FontWeight.Normal)
-)
+
 @Composable
 fun ProductosNew() {
     var nombre by remember { mutableStateOf("") }
@@ -58,7 +58,7 @@ fun ProductosNew() {
 
     val valLetra = remember { Regex("[A-Za-z\\s]*") }
 
-    val valNum = remember { Regex("^\\d+(\\.\\d+)?\$") }
+    val valNum = remember { Regex("^\\d+(\\.\\d+)?\$|^\\d+\\.\$") }
 
     val items = listOf("Pastel", "Postre", "Pan")
 
@@ -77,7 +77,9 @@ fun ProductosNew() {
         Column(
             modifier = Modifier
                 .padding(15.dp)
-                .fillMaxWidth().verticalScroll(scrollState), horizontalAlignment = Alignment.CenterHorizontally
+                .fillMaxWidth()
+                .verticalScroll(scrollState),
+            horizontalAlignment = Alignment.CenterHorizontally
         ) {
             Text(
                 text = "Agregue un nuevo producto",
@@ -90,36 +92,42 @@ fun ProductosNew() {
                 )
             )
             Spacer(modifier = Modifier.height(20.dp))
-            SpinnerMenu(lista = items, label = "Categoria", productoIn = categoria) { nuevo ->
+            SpinnerMenu(
+                lista = items,
+                label = "Categoria",
+                productoIn = categoria,
+                fonsize = 20f
+            ) { nuevo ->
                 categoria = nuevo
             }
             Spacer(modifier = Modifier.height(15.dp))
-            CajaTextoGenerico(valor = nombre, label = "Nombre") {
+            CajaTextoGenerico(valor = nombre, label = "Nombre", isNum = false,
+                size = 20f) {
                 if (it.matches(valLetra)) {
                     nombre = it
                 }
             }
             Spacer(modifier = Modifier.height(10.dp))
             CajaTextoGenericoDes(valor = descripcion, label = "Descripcion") {
-                if (it.matches(valLetra)) {
-                    descripcion = it
-                }
+                descripcion = it
             }
             Spacer(modifier = Modifier.height(10.dp))
-            CajaTextoGenerico(valor = precio, label = "Precio") {
+            CajaTextoGenerico(valor = precio, label = "Precio", isNum = true,
+                size = 20f) {
                 if (it.matches(valNum)) {
                     precio = it
                 }
             }
             Spacer(modifier = Modifier.height(10.dp))
-            CajaTextoGenerico(valor = stock, label = "Stock") {
+            CajaTextoGenerico(valor = stock, label = "Stock", isNum = true,
+                size = 20f) {
                 if (it.matches(valNum)) {
                     stock = it
                 }
             }
             Spacer(modifier = Modifier.height(20.dp))
             BotonGenerico(texto = "Guardar", icono = Icons.Default.Save) {
-                if (nombre.isNotBlank() || descripcion.isNotBlank() || precio.isNotBlank() || stock.isNotBlank()) {
+                if (nombre.isNotBlank() || descripcion.isNotBlank() || precio.isNotBlank() || stock.isNotBlank() || categoria.isNotBlank()) {
 
                     FRproducto.agregarProducto(
                         ProductoEntidad(
@@ -130,11 +138,16 @@ fun ProductosNew() {
                             stock = stock.toInt()
                         )
                     )
-                    nombre = "";descripcion = "";precio = "";stock = "";categoria=""
+                    nombre = "";descripcion = "";precio = "";stock = "";categoria = ""
+                } else {
+                    MensajeToast(contexto, "Complete todos los campos")
                 }
             }
             Spacer(modifier = Modifier.height(20.dp))
-            Image(painter = painterResource(id= R.drawable.logo_nestarez), contentDescription = null)
+            Image(
+                painter = painterResource(id = R.drawable.logo_nestarez),
+                contentDescription = null
+            )
         }
     }
 

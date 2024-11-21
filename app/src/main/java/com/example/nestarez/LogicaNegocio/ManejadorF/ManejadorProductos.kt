@@ -52,7 +52,10 @@ class ManejadorProductos {
                 val lista = snapshot?.documents?.mapNotNull { doc ->
                     doc.toObject(ProductoEntidad::class.java)?.copy(id_producto = doc.id)
                 }?.filter { producto ->
-                    producto.nombre_producto.contains(query, ignoreCase = true) // Filtrado por '%query%'
+                    producto.nombre_producto.contains(
+                        query,
+                        ignoreCase = true
+                    ) // Filtrado por '%query%'
                 } ?: listOf()
                 trySend(lista).isSuccess
             }
@@ -91,8 +94,14 @@ class ManejadorProductos {
             } else {
                 // Generar el rango para la búsqueda con LIKE '%query%'
                 dbProductos
-                    .whereGreaterThanOrEqualTo("nombre_producto", query)
-                    .whereLessThanOrEqualTo("nombre_producto", query + "\uf8ff")
+                    .whereGreaterThanOrEqualTo(
+                        "nombre_lower",
+                        query.lowercase()
+                    ) // Buscar en minúsculas
+                    .whereLessThanOrEqualTo(
+                        "nombre_lower",
+                        query.lowercase() + "\uf8ff"
+                    ) // Completar búsqueda
             }
 
             // Escuchar los cambios en la base de datos
@@ -114,4 +123,5 @@ class ManejadorProductos {
         }
         return flujo
     }
+
 }

@@ -20,6 +20,7 @@ import androidx.compose.material.icons.filled.Add
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.CircularProgressIndicator
+import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.Scaffold
@@ -49,33 +50,28 @@ import com.example.nestarez.LogicaNegocio.Entidades.DetallePedidoEntidad
 import com.example.nestarez.LogicaNegocio.ManejadorF.ManejadorPedidos
 import com.example.nestarez.LogicaNegocio.ManejadorF.ManejadorProductos
 import com.example.nestarez.R
+import com.example.nestarez.componentesUI.NIPedido
+import com.example.nestarez.componentesUI.NIPedidoNew
 import com.example.nestarez.componentesUI.NIProductos
 import com.example.nestarez.componentesUI.TopBarraRetorno
+import com.example.nestarez.fonts.fontInria
+import com.example.nestarez.navegacion.PedidoNew.ANIPedidoNew
 import com.example.nestarez.navegacion.Pedidos.ANIPedido
 import com.example.nestarez.navegacion.Productos.ANIProductos
 
 
 @Composable
 fun PrincipalPedidos(navController: NavController) {
-    val FRpedido = ManejadorPedidos()
-    val listapedidos by FRpedido.obtenerPedidos().collectAsState(initial = emptyList())
-    var detallesPedido by remember { mutableStateOf<List<DetallePedidoEntidad>>(emptyList()) }
-    var isLoading by remember { mutableStateOf(false) }
-    // Estado para controlar qué pedido está expandido
-    var expandedPedidoId by remember { mutableStateOf<String?>(null) }
-
+    val navControlador = rememberNavController()
     Scaffold(
         topBar = {
             TopBarraRetorno(titulo = "Pedidos", colorBarra = Color(0xFFFF683F)) {
                 navController.popBackStack()
             }
-        }
+        },
+        bottomBar = { NIPedido(navControlador = navControlador) }
     ) { innerPadding ->
-        Box(
-            modifier = Modifier
-                .fillMaxSize()
-                .padding(innerPadding)
-        ) {
+        Box(modifier = Modifier.fillMaxSize()) {
             // La imagen ocupa toda la pantalla
             Image(
                 painter = painterResource(id = R.drawable.fondo_ui),
@@ -83,154 +79,9 @@ fun PrincipalPedidos(navController: NavController) {
                 modifier = Modifier.fillMaxSize(),
                 contentScale = ContentScale.Crop // Ajusta la imagen para llenar todo el espacio
             )
-            Box(
-                modifier = Modifier
-                    .fillMaxSize()
-                    .padding(40.dp)
-                    .shadow(50.dp, shape = RoundedCornerShape(16.dp))
-                    .background(Color(0XFFFFEBEB), shape = RoundedCornerShape(16.dp))
-            ) {
-
-                LazyColumn(modifier = Modifier.padding(10.dp)) {
-                    items(listapedidos) { element ->
-
-                            Card(
-                                modifier = Modifier
-                                    .fillMaxWidth()
-                                    .padding(5.dp),
-                                colors = CardDefaults.cardColors(Color(0XFFFFD4BC))
-                            ) {
-                                Row(
-                                    modifier = Modifier
-                                        .padding(5.dp)
-                                        .fillMaxWidth(),
-                                    verticalAlignment = Alignment.CenterVertically
-                                ) {
-                                    Text(text = element.fecha_pedido, color = Color.Black)
-                                    Spacer(modifier = Modifier.weight(1f)) // Espacio flexible
-                                    Text(
-                                        text = "S/ ${element.total.toString()}",
-                                        color = Color.Black
-                                    )
-                                    IconButton(onClick = {
-                                        isLoading = true
-                                        FRpedido.obtenerDetallesPedido(
-                                            idPedido = element.id_pedido.toString(),
-                                            onSuccess = { detalles ->
-                                                detallesPedido =
-                                                    detalles // Guardar detalles en el estado
-                                                isLoading = false // Finaliza el loading
-                                            },
-                                            onFailure = { e -> // Guardar mensaje de error
-                                                isLoading = false // Finaliza el loading
-                                            }
-                                        )
-                                        expandedPedidoId =
-                                            if (expandedPedidoId == element.id_pedido) null else element.id_pedido
-                                    }) {
-                                        Icon(
-                                            imageVector = ImageVector.vectorResource(id = R.drawable.add),
-                                            contentDescription = "",
-                                            tint = Color(0xFF5B2626)
-                                        )
-                                    }
-                                }
-                            }
-
-                            // Mostrar detalles si el pedido está expandido
-                            if (expandedPedidoId == element.id_pedido) {
-                                if (isLoading) {
-                                    Row(
-                                        modifier = Modifier.fillMaxWidth(),
-                                        horizontalArrangement = Arrangement.Center
-                                    ) { CircularProgressIndicator(modifier = Modifier.padding(16.dp)) }
-
-                                } else if (detallesPedido.isNotEmpty()) {
-                                    Column(
-                                        modifier = Modifier.padding(
-                                            bottom = 10.dp,
-                                            start = 10.dp,
-                                            end = 10.dp
-                                        )
-                                    ) {
-                                        detallesPedido.forEach { detalle ->
-                                            Box(
-                                                modifier = Modifier
-                                                    .fillMaxWidth()
-                                                    .background(Color.White)
-                                            ) {
-
-                                                Row(
-                                                    modifier = Modifier.fillMaxWidth(),
-                                                    horizontalArrangement = Arrangement.SpaceEvenly,
-                                                    verticalAlignment = Alignment.CenterVertically
-                                                ) {
-                                                    Box(
-                                                        modifier = Modifier
-                                                            .fillMaxWidth(0.1f)
-                                                            .background(Color.White), contentAlignment = Alignment.Center
-                                                    ) {
-                                                        Text(
-                                                            text = "${detalle.cantidad}",
-                                                            fontWeight = FontWeight.Bold,
-                                                            color = Color.Black,
-                                                            textAlign = TextAlign.Center
-                                                        )
-                                                    }
-                                                    Box(
-                                                        modifier = Modifier
-                                                            .fillMaxWidth(0.7f)
-                                                            .background(Color.White).drawBehind {
-                                                                val strokeWidth = 1.dp.toPx()
-                                                                val color = Color.Black
-                                                                // Borde izquierdo
-                                                                drawLine(color, Offset(0f, 0f), Offset(0f, size.height), strokeWidth)
-                                                                // Borde derecho
-                                                                drawLine(color, Offset(size.width, 0f), Offset(size.width, size.height), strokeWidth)
-                                                            },
-                                                        contentAlignment = Alignment.Center
-                                                    ) {
-                                                        Text(
-                                                            text = detalle.nombre_producto,
-                                                            fontWeight = FontWeight.Bold,
-                                                            color = Color.Black,
-                                                            textAlign = TextAlign.Center
-                                                        )
-                                                    }
-                                                    Box(
-                                                        modifier = Modifier
-                                                            .fillMaxWidth()
-                                                            .background(Color.White).drawBehind {
-                                                                val strokeWidth = 1.dp.toPx()
-                                                                val color = Color.Black
-                                                                // Borde izquierdo
-                                                                drawLine(color, Offset(0f, 0f), Offset(0f, size.height), strokeWidth)
-                                                                },
-                                                        contentAlignment = Alignment.Center
-                                                    ) {
-                                                        Text(
-                                                            text = "S/ ${detalle.subtotal}",
-                                                            fontWeight = FontWeight.Bold,
-                                                            color = Color.Black,
-                                                            textAlign = TextAlign.Center
-                                                        )
-                                                    }
-
-
-                                                }
-
-
-                                            }
-                                            Spacer(modifier = Modifier.height(5.dp))
-                                            //Text(text = "Detalle: ${detalle.nombre_producto} - S/. ${detalle.subtotal}")
-                                        }
-                                    }
-                                }
-
-                        }
-                    }
-                }
-
+            Column(modifier = Modifier.padding(innerPadding)) {
+                //pintado de las vistas
+                ANIPedido(navControlador = navControlador)
             }
         }
     }

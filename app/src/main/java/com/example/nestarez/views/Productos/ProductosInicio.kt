@@ -30,12 +30,10 @@ import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.unit.dp
 import com.example.nestarez.LogicaNegocio.Entidades.ProductoEntidad
 import com.example.nestarez.LogicaNegocio.ManejadorF.ManejadorProductos
-import com.example.nestarez.componentesUI.BotonGenerico
-import com.example.nestarez.componentesUI.CajaTextoGenerico
 import com.example.nestarez.componentesUI.CajaTextoGenericoIcon
+import com.example.nestarez.componentesUI.DialogoConfirm
 import com.example.nestarez.componentesUI.DialogoDetalles
 import com.example.nestarez.componentesUI.DialogoEditar
-import com.example.nestarez.componentesUI.DialogoEliminar
 import com.example.nestarez.componentesUI.ElementosProducto
 
 val ListaProductos = mutableStateListOf<ProductoEntidad>()
@@ -62,9 +60,12 @@ fun InicioProductos() {
     Box(
         modifier = Modifier
             .fillMaxSize()
-            .padding(top =  40.dp, start = 20.dp, end = 20.dp)
+            .padding(top = 40.dp, start = 20.dp, end = 20.dp)
             .shadow(50.dp, shape = RoundedCornerShape(16.dp))
-            .background(Color(0xFFFFEBEB), shape = RoundedCornerShape(topStart = 20.dp, topEnd = 20.dp))
+            .background(
+                Color(0xFFFFEBEB),
+                shape = RoundedCornerShape(topStart = 20.dp, topEnd = 20.dp)
+            )
     ) {
         Column(
             modifier = Modifier
@@ -72,12 +73,17 @@ fun InicioProductos() {
                 .padding(25.dp), horizontalAlignment = Alignment.CenterHorizontally
         ) {
 
-                CajaTextoGenericoIcon(icon = Icons.Default.Search,valor = productoB, label = "Buscar Producto") {
-                    if (it.matches(valLetra)) {
-                        productoB = it
-                    }
+            CajaTextoGenericoIcon(
+                icon = Icons.Default.Search,
+                valor = productoB,
+                label = "Buscar Producto",
+                with = 1f
+            ) {
+                if (it.matches(valLetra)) {
+                    productoB = it
                 }
-                Spacer(modifier = Modifier.height(20.dp))
+            }
+            Spacer(modifier = Modifier.height(20.dp))
 
             //Habilitar los dialogos
             if (abrirDialogoEditar && seleccionProducto != null) {
@@ -98,7 +104,9 @@ fun InicioProductos() {
             }
 
             if (abrirDialogoEliminar && seleccionProducto != null) {
-                DialogoEliminar(cancelaAction = { abrirDialogoEliminar = false }) {
+                DialogoConfirm(
+                    "¿Desea eliminar este elemento?",
+                    cancelaAction = { abrirDialogoEliminar = false }) {
                     seleccionProducto!!.id_producto?.let { FRproducto.eliminarProducto(it) }
                     abrirDialogoEliminar = false
                 }

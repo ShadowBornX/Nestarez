@@ -38,6 +38,27 @@ class ManejadorClientes {
         return flujo
     }
 
+    // Obtener un cliente por su id_cliente
+    fun obtenerClientePorId(id_cliente: String): Flow<ClienteEntidad?> {
+        val flujo = callbackFlow {
+            val listener = dbClientes.document(id_cliente).addSnapshotListener { snapshot, e ->
+                if (e != null) {
+                    close(e)
+                    return@addSnapshotListener
+                }
+
+                // Verifica si el documento existe
+                val cliente = snapshot?.toObject(ClienteEntidad::class.java)?.copy(id_cliente = snapshot.id)
+
+                // Enviar el cliente al flujo
+                trySend(cliente).isSuccess
+            }
+            awaitClose { listener.remove() }
+        }
+        return flujo
+    }
+
+
     // Actualizar un cliente
     fun actualizarCliente(cliente: ClienteEntidad) {
         cliente.id_cliente?.let {

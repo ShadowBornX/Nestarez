@@ -2,51 +2,16 @@ package com.example.nestarez.LogicaNegocio.ManejadorF
 
 import com.example.nestarez.LogicaNegocio.Entidades.DetallePedidoEntidad
 import com.example.nestarez.LogicaNegocio.Entidades.PedidoEntidad
+import com.google.firebase.Timestamp
 import com.google.firebase.firestore.FirebaseFirestore
 import kotlinx.coroutines.channels.awaitClose
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.callbackFlow
+import java.util.Calendar
 
 class ManejadorPedidos {
-    /*private val dbPedidos = FirebaseFirestore.getInstance().collection("Pedidos")
 
-    fun agregarPedido(pedido: PedidoEntidad) {
-        val key = dbPedidos.document().id
-        pedido.id_pedido = key
-        dbPedidos.document(key).set(pedido)
-    }
-
-    fun obtenerPedidos(): Flow<List<PedidoEntidad>> {
-        val flujo = callbackFlow {
-            val listener = dbPedidos.addSnapshotListener { snapshot, e ->
-                if (e != null) {
-                    close(e)
-                    return@addSnapshotListener
-                }
-                val lista = snapshot?.documents?.mapNotNull { doc ->
-                    doc.toObject(PedidoEntidad::class.java)?.copy(id_pedido = doc.id)
-                } ?: listOf()
-                trySend(lista).isSuccess
-            }
-            awaitClose { listener.remove() }
-        }
-        return flujo
-    }
-
-    fun actualizarPedido(pedido: PedidoEntidad) {
-        pedido.id_pedido?.let {
-            dbPedidos.document(it).set(pedido)
-        }
-    }
-
-    fun eliminarPedido(id_pedido: String) {
-        dbPedidos.document(id_pedido).delete()
-    }*/
     private val dbPedidos = FirebaseFirestore.getInstance().collection("Pedidos")
-    private val dbDetallePedidos = FirebaseFirestore.getInstance().collection("DetallePedidos")
-
-    // Agregar un nuevo pedido junto con los detalles
-    //private val dbPedidos = FirebaseFirestore.getInstance().collection("Pedidos")
 
     fun agregarPedidoConDetallesAnidados(
         pedido: PedidoEntidad,
@@ -66,7 +31,6 @@ class ManejadorPedidos {
         detalles.forEach { detalle ->
             val keyDetalle = pedidoRef.collection("DetallePedidos").document().id
             detalle.id_detalle = keyDetalle
-            detalle.id_pedido = keyPedido // Relacionar el detalle con el pedido
             val detalleRef = pedidoRef.collection("DetallePedidos").document(keyDetalle)
             batch.set(detalleRef, detalle)
         }
@@ -81,10 +45,162 @@ class ManejadorPedidos {
             }
     }
 
-    // Obtener lista de pedidos
-    fun obtenerPedidos(): Flow<List<PedidoEntidad>> {
+    fun buscarPedidosPorNombre(query: String, estado:String): Flow<List<PedidoEntidad>> {
         val flujo = callbackFlow {
-            val listener = dbPedidos.addSnapshotListener { snapshot, e ->
+            // Configurar la consulta
+            val consulta = if (query.isBlank()) {
+                dbPedidos
+                    .whereEqualTo("estado", estado)
+                    .orderBy("fecha_pedido")
+            } else {
+                dbPedidos
+                    .whereEqualTo("estado", estado)
+                    .whereGreaterThanOrEqualTo(
+                        "nombre_cliente",
+                        query.lowercase()
+                    ) // Buscar coincidencias en minúsculas
+                    .whereLessThanOrEqualTo(
+                        "nombre_cliente",
+                        query.lowercase() + "\uf8ff"
+                    )
+                    .orderBy("nombre_cliente") // Es necesario para las consultas con rango
+                    .orderBy("fecha_pedido")
+            }
+
+            // Escuchar los cambios en la base de datos
+            val listener = consulta.addSnapshotListener { snapshot, e ->
+                if (e != null) {
+                    close(e)
+                    return@addSnapshotListener
+                }
+
+                val lista = snapshot?.documents?.mapNotNull { doc ->
+                    doc.toObject(PedidoEntidad::class.java)?.copy(id_pedido = doc.id)
+                } ?: listOf()
+
+                // Enviar la lista al flujo
+                trySend(lista).isSuccess
+            }
+
+            awaitClose { listener.remove() }
+        }
+        return flujo
+    }
+
+    fun buscarPedidosPorNombre(
+        query: String,
+        estado: String,
+        fechaEspecifica: Timestamp? // Agregar parámetro de fecha
+    ): Flow<List<PedidoEntidad>> {
+        val flujo = callbackFlow {
+            val consulta = when {
+                // Si ambos parámetros están vacíos, mostramos todos los pedidos
+                query.isBlank() && fechaEspecifica == null -> {
+                    dbPedidos
+                        .whereEqualTo("estado", estado)
+                        .orderBy("fecha_pedido")
+                }
+
+                // Si solo la fecha es proporcionada, buscamos solo por fecha
+                fechaEspecifica != null && query.isBlank() -> {
+                    val fechaInicio = Calendar.getInstance().apply {
+                        time = fechaEspecifica.toDate()
+                        set(Calendar.HOUR_OF_DAY, 0)
+                        set(Calendar.MINUTE, 0)
+                        set(Calendar.SECOND, 0)
+                        set(Calendar.MILLISECOND, 0)
+                    }.time
+
+                    val fechaFin = Calendar.getInstance().apply {
+                        time = fechaEspecifica.toDate()
+                        set(Calendar.HOUR_OF_DAY, 23)
+                        set(Calendar.MINUTE, 59)
+                        set(Calendar.SECOND, 59)
+                        set(Calendar.MILLISECOND, 999)
+                    }.time
+
+                    dbPedidos
+                        .whereEqualTo("estado", estado)
+                        .whereGreaterThanOrEqualTo("fecha_pedido", Timestamp(fechaInicio))
+                        .whereLessThanOrEqualTo("fecha_pedido", Timestamp(fechaFin))
+                        .orderBy("fecha_pedido")
+                }
+
+                // Si solo el query es proporcionado, buscamos solo por nombre
+                query.isNotBlank() && fechaEspecifica == null -> {
+                    dbPedidos
+                        .whereEqualTo("estado", estado)
+                        .whereGreaterThanOrEqualTo("nombre_cliente", query.lowercase())
+                        .whereLessThanOrEqualTo("nombre_cliente", query.lowercase() + "\uf8ff")
+                        .orderBy("nombre_cliente")
+                        .orderBy("fecha_pedido")
+                }
+
+                // Si ambos parámetros son proporcionados, buscamos por nombre y fecha
+                else -> {
+                    val fechaInicio = Calendar.getInstance().apply {
+                        if (fechaEspecifica != null) {
+                            time = fechaEspecifica.toDate()
+                        }
+                        set(Calendar.HOUR_OF_DAY, 0)
+                        set(Calendar.MINUTE, 0)
+                        set(Calendar.SECOND, 0)
+                        set(Calendar.MILLISECOND, 0)
+                    }.time
+
+                    val fechaFin = Calendar.getInstance().apply {
+                        if (fechaEspecifica != null) {
+                            time = fechaEspecifica.toDate()
+                        }
+                        set(Calendar.HOUR_OF_DAY, 23)
+                        set(Calendar.MINUTE, 59)
+                        set(Calendar.SECOND, 59)
+                        set(Calendar.MILLISECOND, 999)
+                    }.time
+
+                    dbPedidos
+                        .whereEqualTo("estado", estado)
+                        .whereGreaterThanOrEqualTo("nombre_cliente", query.lowercase())
+                        .whereLessThanOrEqualTo("nombre_cliente", query.lowercase() + "\uf8ff")
+                        .whereGreaterThanOrEqualTo("fecha_pedido", Timestamp(fechaInicio))
+                        .whereLessThanOrEqualTo("fecha_pedido", Timestamp(fechaFin))
+                        .orderBy("nombre_cliente")
+                        .orderBy("fecha_pedido")
+                }
+            }
+
+            // Escuchar los cambios en la base de datos
+            val listener = consulta.addSnapshotListener { snapshot, e ->
+                if (e != null) {
+                    close(e)
+                    return@addSnapshotListener
+                }
+
+                val lista = snapshot?.documents?.mapNotNull { doc ->
+                    doc.toObject(PedidoEntidad::class.java)?.copy(id_pedido = doc.id)
+                } ?: listOf()
+
+                // Enviar la lista al flujo
+                trySend(lista).isSuccess
+            }
+
+            awaitClose { listener.remove() }
+        }
+        return flujo
+    }
+
+
+
+
+
+    fun obtenerPedidosFinalizados(): Flow<List<PedidoEntidad>> {
+        val flujo = callbackFlow {
+            // Consulta solo los pedidos con estado "Pendiente", ordenados por fecha
+            val consulta = dbPedidos
+                .whereEqualTo("estado", "Finalizado")
+                .orderBy("fecha_pedido") // Asegúrate de que fecha_pedido esté en un formato compatible con ordenación
+
+            val listener = consulta.addSnapshotListener { snapshot, e ->
                 if (e != null) {
                     close(e)
                     return@addSnapshotListener
@@ -99,6 +215,7 @@ class ManejadorPedidos {
         return flujo
     }
 
+
     fun obtenerDetallesPedido(
         idPedido: String,
         onSuccess: (List<DetallePedidoEntidad>) -> Unit,
@@ -112,24 +229,6 @@ class ManejadorPedidos {
                     }
                 }
                 onSuccess(detalles)
-            }
-            .addOnFailureListener { e ->
-                onFailure(e)
-            }
-    }
-
-    fun obtenerListaPedidos(
-        onSuccess: (List<PedidoEntidad>) -> Unit,
-        onFailure: (Exception) -> Unit
-    ) {
-        dbPedidos.get()
-            .addOnSuccessListener { snapshot ->
-                val pedidos = snapshot.documents.mapNotNull { doc ->
-                    doc.toObject(PedidoEntidad::class.java)?.apply {
-                        id_pedido = doc.id  // Asignar el ID del documento al pedido
-                    }
-                }
-                onSuccess(pedidos)
             }
             .addOnFailureListener { e ->
                 onFailure(e)

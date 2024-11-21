@@ -43,7 +43,6 @@ import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import com.example.nestarez.LogicaNegocio.ManejadorF.ManejadorClientes
-import com.example.nestarez.LogicaNegocio.ManejadorF.ManejadorDetallePedidos
 import com.example.nestarez.LogicaNegocio.ManejadorF.ManejadorPedidos
 import com.example.nestarez.LogicaNegocio.ManejadorF.ManejadorProductos
 import com.example.nestarez.LogicaNegocio.Entidades.ClienteEntidad
@@ -196,7 +195,6 @@ fun insertarProductosEnDb() {
     val manejadorClientes = ManejadorClientes()
     val manejadorProductos = ManejadorProductos()
     val manejadorPedidos = ManejadorPedidos()
-    val manejadorDetallePedidos = ManejadorDetallePedidos()
 
 // Agregar un cliente
    /* val nuevoCliente = ClienteEntidad(nombre = "Juan Perez", direccion = "Calle 123", telefono = "999999999", email = "juan@gmail.com")
@@ -211,37 +209,38 @@ fun insertarProductosEnDb() {
     manejadorProductos.agregarProducto(nuevoProducto)*/
 
     val productos = listOf(
-    ProductoEntidad(nombre_producto = "TORTA DE CHOCOLATE", descripcion = "Deliciosa torta con múltiples capas de chocolate.", precio = 20.0, stock = 50, categoria = "Pastel"),
-    ProductoEntidad(nombre_producto = "PASTEL DE FRESAS", descripcion = "Esponjoso pastel cubierto de fresas frescas.", precio = 18.0, stock = 40, categoria = "Pastel"),
-    ProductoEntidad(nombre_producto = "DONUTS GLASEADAS", descripcion = "Donuts suaves con un glaseado dulce.", precio = 5.0, stock = 100, categoria = "Postre"),
-    ProductoEntidad(nombre_producto = "BROWNIE DE NUEZ", descripcion = "Brownies crujientes con trozos de nuez.", precio = 12.0, stock = 60, categoria = "Postre"),
-    ProductoEntidad(nombre_producto = "CUPCAKES DE VAINILLA", descripcion = "Cupcakes suaves con crema de vainilla.", precio = 7.0, stock = 80, categoria = "Pastel"),
-    ProductoEntidad(nombre_producto = "TARTA DE LIMÓN", descripcion = "Tarta con crema de limón y merengue.", precio = 16.0, stock = 30, categoria = "Pastel"),
-    ProductoEntidad(nombre_producto = "GALLETAS DE CHISPAS DE CHOCOLATE", descripcion = "Galletas rellenas de chispas de chocolate.", precio = 4.0, stock = 150, categoria = "Postre"),
-    ProductoEntidad(nombre_producto = "MOUSSE DE FRESA", descripcion = "Mousse suave de fresa con crema batida.", precio = 10.0, stock = 45, categoria = "Postre"),
-    ProductoEntidad(nombre_producto = "TIRAMISÚ", descripcion = "Clásico postre italiano con café y cacao.", precio = 22.0, stock = 35, categoria = "Postre"),
-    ProductoEntidad(nombre_producto = "ROLLITOS DE CANELA", descripcion = "Rollos de canela suaves con glaseado.", precio = 8.0, stock = 70, categoria = "Pan"),
-    ProductoEntidad(nombre_producto = "MILHOJAS DE CREMA", descripcion = "Postre crujiente con capas de crema pastelera.", precio = 15.0, stock = 55, categoria = "Postre"),
-    ProductoEntidad(nombre_producto = "FLAN DE CARAMELO", descripcion = "Flan cremoso bañado en caramelo.", precio = 14.0, stock = 40, categoria = "Postre"),
-    ProductoEntidad(nombre_producto = "TARTA DE MANZANA", descripcion = "Tarta tradicional con relleno de manzana.", precio = 18.0, stock = 25, categoria = "Pastel"),
-    ProductoEntidad(nombre_producto = "PANETTONE TRADICIONAL", descripcion = "Pan dulce italiano con frutas secas.", precio = 25.0, stock = 20, categoria = "Pan"),
-    ProductoEntidad(nombre_producto = "TRUFAS DE CHOCOLATE", descripcion = "Trufas de chocolate amargo y leche.", precio = 6.0, stock = 90, categoria = "Postre"),
-    ProductoEntidad(nombre_producto = "CHEESECAKE DE MARACUYÁ", descripcion = "Cheesecake suave con maracuyá.", precio = 24.0, stock = 30, categoria = "Postre"),
-    ProductoEntidad(nombre_producto = "MACARONS DE COLORES", descripcion = "Delicados macarons de almendra en varios sabores.", precio = 12.0, stock = 60, categoria = "Postre"),
-    ProductoEntidad(nombre_producto = "TARTA DE QUESO Y FRUTOS ROJOS", descripcion = "Tarta de queso con frutas frescas.", precio = 21.0, stock = 25, categoria = "Pastel"),
-    ProductoEntidad(nombre_producto = "HELADO ARTESANAL DE VAINILLA", descripcion = "Helado cremoso de vainilla.", precio = 15.0, stock = 40, categoria = "Postre"),
-    ProductoEntidad(nombre_producto = "CROISSANTS DE MANTEQUILLA", descripcion = "Croissants suaves con mantequilla.", precio = 9.0, stock = 80, categoria = "Pan"),
-    ProductoEntidad(nombre_producto = "ECLAIRS DE CHOCOLATE", descripcion = "Eclairs rellenos de crema de chocolate.", precio = 14.0, stock = 50, categoria = "Postre"),
-    ProductoEntidad(nombre_producto = "BIZCOCHO DE NARANJA", descripcion = "Bizcocho esponjoso con sabor a naranja.", precio = 12.0, stock = 65, categoria = "Pastel"),
-    ProductoEntidad(nombre_producto = "PASTELITOS DE COCO", descripcion = "Pastelitos dulces con coco rallado.", precio = 10.0, stock = 70, categoria = "Pastel"),
-    ProductoEntidad(nombre_producto = "TARTA DE DURAZNO", descripcion = "Tarta de masa crujiente con duraznos frescos.", precio = 19.0, stock = 30, categoria = "Pastel"),
-    ProductoEntidad(nombre_producto = "HELADO DE FRESA", descripcion = "Helado de fresas frescas.", precio = 13.0, stock = 50, categoria = "Postre"),
-    ProductoEntidad(nombre_producto = "PANQUE DE PLÁTANO", descripcion = "Panque suave con plátano maduro.", precio = 11.0, stock = 60, categoria = "Pan"),
-    ProductoEntidad(nombre_producto = "BOMBAS DE CREMA", descripcion = "Bombas rellenas de crema pastelera.", precio = 5.0, stock = 100, categoria = "Postre"),
-    ProductoEntidad(nombre_producto = "TORTA DE RED VELVET", descripcion = "Torta de terciopelo rojo con crema de queso.", precio = 20.0, stock = 40, categoria = "Pastel"),
-    ProductoEntidad(nombre_producto = "QUESADILLA DE NATA", descripcion = "Quesadilla rellena de nata fresca.", precio = 14.0, stock = 45, categoria = "Pan"),
-    ProductoEntidad(nombre_producto = "PASTEL DE ZANAHORIA", descripcion = "Pastel saludable con zanahorias ralladas y nueces.", precio = 18.0, stock = 35, categoria = "Pastel")
-)
+        ProductoEntidad(nombre_producto = "Torta de Chocolate", nombre_lower = "torta de chocolate", descripcion = "Deliciosa torta con múltiples capas de chocolate.", precio = 20.0, stock = 50, categoria = "Pastel"),
+        ProductoEntidad(nombre_producto = "Pastel de Fresas", nombre_lower = "pastel de fresas", descripcion = "Esponjoso pastel cubierto de fresas frescas.", precio = 18.0, stock = 40, categoria = "Pastel"),
+        ProductoEntidad(nombre_producto = "Donuts Glaseadas", nombre_lower = "donuts glaseadas", descripcion = "Donuts suaves con un glaseado dulce.", precio = 5.0, stock = 100, categoria = "Postre"),
+        ProductoEntidad(nombre_producto = "Brownie de Nuez", nombre_lower = "brownie de nuez", descripcion = "Brownies crujientes con trozos de nuez.", precio = 12.0, stock = 60, categoria = "Postre"),
+        ProductoEntidad(nombre_producto = "Cupcakes de Vainilla", nombre_lower = "cupcakes de vainilla", descripcion = "Cupcakes suaves con crema de vainilla.", precio = 7.0, stock = 80, categoria = "Pastel"),
+        ProductoEntidad(nombre_producto = "Tarta de Limón", nombre_lower = "tarta de limón", descripcion = "Tarta con crema de limón y merengue.", precio = 16.0, stock = 30, categoria = "Pastel"),
+        ProductoEntidad(nombre_producto = "Galletas de Chispas de Chocolate", nombre_lower = "galletas de chispas de chocolate", descripcion = "Galletas rellenas de chispas de chocolate.", precio = 4.0, stock = 150, categoria = "Postre"),
+        ProductoEntidad(nombre_producto = "Mousse de Fresa", nombre_lower = "mousse de fresa", descripcion = "Mousse suave de fresa con crema batida.", precio = 10.0, stock = 45, categoria = "Postre"),
+        ProductoEntidad(nombre_producto = "Tiramisú", nombre_lower = "tiramisú", descripcion = "Clásico postre italiano con café y cacao.", precio = 22.0, stock = 35, categoria = "Postre"),
+        ProductoEntidad(nombre_producto = "Rollitos de Canela", nombre_lower = "rollitos de canela", descripcion = "Rollos de canela suaves con glaseado.", precio = 8.0, stock = 70, categoria = "Pan"),
+        ProductoEntidad(nombre_producto = "Milhojas de Crema", nombre_lower = "milhojas de crema", descripcion = "Postre crujiente con capas de crema pastelera.", precio = 15.0, stock = 55, categoria = "Postre"),
+        ProductoEntidad(nombre_producto = "Flan de Caramelo", nombre_lower = "flan de caramelo", descripcion = "Flan cremoso bañado en caramelo.", precio = 14.0, stock = 40, categoria = "Postre"),
+        ProductoEntidad(nombre_producto = "Tarta de Manzana", nombre_lower = "tarta de manzana", descripcion = "Tarta tradicional con relleno de manzana.", precio = 18.0, stock = 25, categoria = "Pastel"),
+        ProductoEntidad(nombre_producto = "Panettone Tradicional", nombre_lower = "panettone tradicional", descripcion = "Pan dulce italiano con frutas secas.", precio = 25.0, stock = 20, categoria = "Pan"),
+        ProductoEntidad(nombre_producto = "Trufas de Chocolate", nombre_lower = "trufas de chocolate", descripcion = "Trufas de chocolate amargo y leche.", precio = 6.0, stock = 90, categoria = "Postre"),
+        ProductoEntidad(nombre_producto = "Cheesecake de Maracuyá", nombre_lower = "cheesecake de maracuyá", descripcion = "Cheesecake suave con maracuyá.", precio = 24.0, stock = 30, categoria = "Postre"),
+        ProductoEntidad(nombre_producto = "Macarons de Colores", nombre_lower = "macarons de colores", descripcion = "Delicados macarons de almendra en varios sabores.", precio = 12.0, stock = 60, categoria = "Postre"),
+        ProductoEntidad(nombre_producto = "Tarta de Queso y Frutos Rojos", nombre_lower = "tarta de queso y frutos rojos", descripcion = "Tarta de queso con frutas frescas.", precio = 21.0, stock = 25, categoria = "Pastel"),
+        ProductoEntidad(nombre_producto = "Helado Artesanal de Vainilla", nombre_lower = "helado artesanal de vainilla", descripcion = "Helado cremoso de vainilla.", precio = 15.0, stock = 40, categoria = "Postre"),
+        ProductoEntidad(nombre_producto = "Croissants de Mantequilla", nombre_lower = "croissants de mantequilla", descripcion = "Croissants suaves con mantequilla.", precio = 9.0, stock = 80, categoria = "Pan"),
+        ProductoEntidad(nombre_producto = "Eclairs de Chocolate", nombre_lower = "eclairs de chocolate", descripcion = "Eclairs rellenos de crema de chocolate.", precio = 14.0, stock = 50, categoria = "Postre"),
+        ProductoEntidad(nombre_producto = "Bizcocho de Naranja", nombre_lower = "bizcocho de naranja", descripcion = "Bizcocho esponjoso con sabor a naranja.", precio = 12.0, stock = 65, categoria = "Pastel"),
+        ProductoEntidad(nombre_producto = "Pastelitos de Coco", nombre_lower = "pastelitos de coco", descripcion = "Pastelitos dulces con coco rallado.", precio = 10.0, stock = 70, categoria = "Pastel"),
+        ProductoEntidad(nombre_producto = "Tarta de Durazno", nombre_lower = "tarta de durazno", descripcion = "Tarta de masa crujiente con duraznos frescos.", precio = 19.0, stock = 30, categoria = "Pastel"),
+        ProductoEntidad(nombre_producto = "Helado de Fresa", nombre_lower = "helado de fresa", descripcion = "Helado de fresas frescas.", precio = 13.0, stock = 50, categoria = "Postre"),
+        ProductoEntidad(nombre_producto = "Panque de Plátano", nombre_lower = "panque de plátano", descripcion = "Panque suave con plátano maduro.", precio = 11.0, stock = 60, categoria = "Pan"),
+        ProductoEntidad(nombre_producto = "Bombas de Crema", nombre_lower = "bombas de crema", descripcion = "Bombas rellenas de crema pastelera.", precio = 5.0, stock = 100, categoria = "Postre"),
+        ProductoEntidad(nombre_producto = "Torta de Red Velvet", nombre_lower = "torta de red velvet", descripcion = "Torta de terciopelo rojo con crema de queso.", precio = 20.0, stock = 40, categoria = "Pastel"),
+        ProductoEntidad(nombre_producto = "Quesadilla de Nata", nombre_lower = "quesadilla de nata", descripcion = "Quesadilla rellena de nata fresca.", precio = 14.0, stock = 45, categoria = "Pan"),
+        ProductoEntidad(nombre_producto = "Pastel de Zanahoria", nombre_lower = "pastel de zanahoria", descripcion = "Pastel saludable con zanahorias ralladas y nueces.", precio = 18.0, stock = 35, categoria = "Pastel")
+    )
+
 
 
     productos.forEach { producto ->

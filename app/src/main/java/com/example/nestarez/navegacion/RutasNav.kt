@@ -8,5 +8,5 @@ enum class RutasNav {
     ProductosPrincipal,
     ProductosNew,
     PedidosPrincipal,
-    PedidosDetalle
+    PedidosFinish
 }

@@ -5,19 +5,21 @@ import androidx.navigation.NavHostController
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import com.example.nestarez.navegacion.ElementoNav
+import com.example.nestarez.views.Pedido.PedidoInicio
+import com.example.nestarez.views.Pedido.PedidoLista
 import com.example.nestarez.views.PedidoNew.InicioPedidoNew
 import com.example.nestarez.views.PedidoNew.ListaPedidoNew
 
 @Composable
 fun ANIPedido(navControlador: NavHostController){
-    NavHost(navController = navControlador, startDestination = ElementoNav.PedidosNewPrincipal.ruta){
-        composable(route = ElementoNav.PedidosNewPrincipal.ruta){
+    NavHost(navController = navControlador, startDestination = ElementoNav.PedidoPrincipal.ruta){
+        composable(route = ElementoNav.PedidoPrincipal.ruta){
             // Invocar a la UI Destino
-            InicioPedidoNew()
+            PedidoInicio()
         }
-        composable(route = ElementoNav.PedidosNewLista.ruta){
+        composable(route = ElementoNav.PedidoLista.ruta){
             // Invocar a la UI Destino
-            ListaPedidoNew()
+            PedidoLista()
         }
     }
 }

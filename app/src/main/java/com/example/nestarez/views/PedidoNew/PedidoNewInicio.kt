@@ -36,13 +36,14 @@ import com.example.nestarez.componentesUI.CajaTextoGenericoIcon
 import com.example.nestarez.componentesUI.DialogoAgregar
 import com.example.nestarez.componentesUI.DialogoDetalles
 import com.example.nestarez.componentesUI.DialogoEditar
-import com.example.nestarez.componentesUI.DialogoEliminar
 import com.example.nestarez.componentesUI.ElementosProducto
 import com.example.nestarez.componentesUI.ElementosProductoPedidoNew
 
 
 @Composable
 fun InicioPedidoNew() {
+
+
     var productoB by remember { mutableStateOf("") }
 
     val FRproducto = ManejadorProductos()
@@ -57,7 +58,7 @@ fun InicioPedidoNew() {
     Box(
         modifier = Modifier
             .fillMaxSize()
-            .padding(40.dp)
+            .padding(top = 40.dp, start = 20.dp, end = 20.dp)
             .shadow(50.dp, shape = RoundedCornerShape(16.dp))
             .background(Color(0XFFFFEBEB), shape = RoundedCornerShape(16.dp))
     ) {
@@ -66,7 +67,12 @@ fun InicioPedidoNew() {
                 .fillMaxSize()
                 .padding(15.dp), horizontalAlignment = Alignment.CenterHorizontally
         ) {
-            CajaTextoGenericoIcon(icon = Icons.Default.Search,valor = productoB, label = "Buscar Producto") {
+            CajaTextoGenericoIcon(
+                icon = Icons.Default.Search,
+                valor = productoB,
+                label = "Buscar Producto",
+                with = 1f
+            ) {
                 if (it.matches(valLetra)) {
                     productoB = it
                 }
