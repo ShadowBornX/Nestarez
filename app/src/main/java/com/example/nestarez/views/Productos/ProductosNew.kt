@@ -59,7 +59,7 @@ fun ProductosNew() {
     val valLetra = remember { Regex("[A-Za-z\\s]*") }
 
     val valNum = remember { Regex("^\\d+(\\.\\d+)?\$|^\\d+\\.\$") }
-
+    val valNumInt = remember { Regex("^\\d+$") }
     val items = listOf("Pastel", "Postre", "Pan")
 
     val scrollState = rememberScrollState()
@@ -114,14 +114,14 @@ fun ProductosNew() {
             Spacer(modifier = Modifier.height(10.dp))
             CajaTextoGenerico(valor = precio, label = "Precio", isNum = true,
                 size = 20f) {
-                if (it.matches(valNum)) {
+                if (it.matches(valNum)||it.isEmpty()) {
                     precio = it
                 }
             }
             Spacer(modifier = Modifier.height(10.dp))
             CajaTextoGenerico(valor = stock, label = "Stock", isNum = true,
                 size = 20f) {
-                if (it.matches(valNum)) {
+                if (it.matches(valNumInt)||it.isEmpty()) {
                     stock = it
                 }
             }

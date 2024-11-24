@@ -25,6 +25,7 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateListOf
+import androidx.compose.runtime.mutableStateMapOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
@@ -46,6 +47,7 @@ import com.example.nestarez.LogicaNegocio.Entidades.PedidoEntidad
 import com.example.nestarez.LogicaNegocio.Entidades.ProductoEntidad
 import com.example.nestarez.LogicaNegocio.ManejadorF.ManejadorClientes
 import com.example.nestarez.LogicaNegocio.ManejadorF.ManejadorPedidos
+import com.example.nestarez.LogicaNegocio.ManejadorF.ManejadorProductos
 
 import com.example.nestarez.componentesUI.BotonGenerico
 import com.example.nestarez.componentesUI.BotonGenericoLista
@@ -59,27 +61,14 @@ import java.time.LocalDate
 
 //val ListaDetallePedido = mutableStateListOf<DetallePedidoEntidad>()
 
-@Composable
+/*@Composable
 fun ListaPedidoNew() {
     val FRClientes = ManejadorClientes()
     val FRPedido = ManejadorPedidos()
-
-    // Usar remember para que total se actualice reactivo
+    val FRProductos = ManejadorProductos()
     var total by remember { mutableStateOf(0.0) }
-
-    // Estado para el dialogo
     var verDialogo by remember { mutableStateOf(false) }
 
-    // Contexto para usar en el dialogo
-    val contexto = LocalContext.current
-
-    // Estado mutable para el detalle seleccionado (para editar cantidades)
-    var seleccionDetalle by remember { mutableStateOf<DetallePedidoEntidad?>(null) }
-
-    // Lista global de detalles de pedido
-    val listaDetallePedidoState = remember { ListaDetallePedido }
-
-    // Box principal para contener la UI
     Box(
         modifier = Modifier
             .fillMaxSize()
@@ -88,18 +77,14 @@ fun ListaPedidoNew() {
             .background(Color(0XFFFFEBEB), shape = RoundedCornerShape(16.dp))
     ) {
         Column(modifier = Modifier.fillMaxSize(), verticalArrangement = Arrangement.SpaceAround) {
-            // Mostrar el dialogo de cliente si se activa
             if (verDialogo) {
-                total = calcularTotal()  // Recalcular total al abrir el dialogo
+                total = calcularTotal()
                 DialogoCliente(
                     cancelaAction = {
                         verDialogo = false
                     },
                     aceptaAction = { cliente ->
-                        // Agregar cliente si no existe
                         FRClientes.agregarCliente(cliente)
-
-                        // Agregar pedido con detalles
                         FRPedido.agregarPedidoConDetallesAnidados(
                             PedidoEntidad(
                                 id_cliente = cliente.id_cliente!!,
@@ -108,55 +93,278 @@ fun ListaPedidoNew() {
                                 total = total,
                                 estado = "Pendiente"
                             ),
-                            listaDetallePedidoState, // Usar lista global
+                            ListaDetallePedido,
                             onSuccess = {
                                 Log.d("Firestore", "Pedido y detalles agregados exitosamente")
                             },
                             onFailure = { e ->
                                 Log.e("Firestore", "Error al agregar pedido y detalles", e)
                             }
+
                         )
-                        // Limpiar lista de detalles y cerrar el dialogo
+                        FRProductos.actualizarStockPorDetalles(ListaDetallePedido)
                         limpiarLista()
                         verDialogo = false
                     }
                 )
             }
-            // Mostrar los productos seleccionados en LazyColumn
-            if (listaDetallePedidoState.isNotEmpty()) {
+            if (ListaDetallePedido.isNotEmpty()) {
                 LazyColumn(modifier = Modifier.fillMaxHeight(0.85f)) {
-                    items(listaDetallePedidoState) { element ->
-                        // Mostrar cada detalle con opción de añadir o eliminar
+                    items(ListaDetallePedido) { element ->
+                        var Stock = 0
+                        FRProductos.obtenerStockActual(element.id_producto){ stockActual->
+                            if (stockActual != null) {
+                                Stock = stockActual
+                            }
+                        }
+
+
                         ElementosDetallePedido(detallePedidoEntidad = element, onAdd = {
-                            element.cantidad++
-                            element.subtotal = element.precio_unitario * element.cantidad
-                            total = calcularTotal()  // Recalcular total al modificar cantidad
+                            if(element.cantidad < Stock) {
+                                element.cantidad++
+                                element.subtotal = element.precio_unitario * element.cantidad
+                                total = calcularTotal()  // Recalcular total al modificar cantidad
+                            }
                         }, onDelete = {
+
                             element.cantidad--
                             element.subtotal = element.precio_unitario * element.cantidad
                             total = calcularTotal()  // Recalcular total al eliminar cantidad
 
                             if (element.cantidad == 0) {
-                                listaDetallePedidoState.remove(element)
+                                ListaDetallePedido.remove(element)
                             }
                         })
                     }
                 }
-
-                // Botones para cancelar o finalizar pedido
                 Row(
                     modifier = Modifier.fillMaxWidth(),
                     horizontalArrangement = Arrangement.SpaceAround
                 ) {
                     BotonGenericoLista(texto = "Cancelar", icono = Icons.Default.Clear) {
-                        limpiarLista()  // Limpia la lista de detalles
+                        limpiarLista()
                     }
                     BotonGenericoLista(texto = "Finalizar", icono = Icons.Default.Add) {
                         verDialogo = true
                     }
                 }
             } else {
-                // Mensaje si no hay productos seleccionados
+                Text(
+                    text = "No hay productos\n\nseleccionados",
+                    modifier = Modifier.fillMaxWidth(),
+                    fontSize = 30.sp,
+                    fontWeight = FontWeight.Bold,
+                    textAlign = TextAlign.Center,
+                    color = Color(0xFFBF360C) // Rojo quemado
+                )
+            }
+        }
+    }
+}*/
+/*
+@Composable
+fun ListaPedidoNew() {
+    val FRClientes = ManejadorClientes()
+    val FRPedido = ManejadorPedidos()
+    val FRProductos = ManejadorProductos()
+    val total = remember { mutableStateOf(0.0) }
+    val verDialogo = remember { mutableStateOf(false) }
+    val stockMap = remember { mutableStateMapOf<String, Int>() }
+
+    // Cargar stock inicial para todos los productos en la lista
+    LaunchedEffect(Unit) {
+        ListaDetallePedido.forEach { detalle ->
+            FRProductos.obtenerStockActual(detalle.id_producto) { stockActual ->
+                if (stockActual != null) {
+                    stockMap[detalle.id_producto] = stockActual
+                }
+            }
+        }
+    }
+
+    Box(
+        modifier = Modifier
+            .fillMaxSize()
+            .padding(top = 40.dp, start = 20.dp, end = 20.dp)
+            .shadow(50.dp, shape = RoundedCornerShape(16.dp))
+            .background(Color(0XFFFFEBEB), shape = RoundedCornerShape(16.dp))
+    ) {
+        Column(modifier = Modifier.fillMaxSize(), verticalArrangement = Arrangement.SpaceAround) {
+            if (verDialogo.value) {
+                total.value = calcularTotal()
+                DialogoCliente(
+                    cancelaAction = { verDialogo.value = false },
+                    aceptaAction = { cliente ->
+                        FRClientes.agregarCliente(cliente)
+                        FRPedido.agregarPedidoConDetallesAnidados(
+                            PedidoEntidad(
+                                id_cliente = cliente.id_cliente!!,
+                                nombre_cliente = cliente.nombre_lower,
+                                fecha_pedido = Timestamp.now(),
+                                total = total.value,
+                                estado = "Pendiente"
+                            ),
+                            ListaDetallePedido,
+                            onSuccess = { Log.d("Firestore", "Pedido agregado") },
+                            onFailure = { e -> Log.e("Firestore", "Error al agregar pedido", e) }
+                        )
+                        FRProductos.actualizarStockPorDetalles(ListaDetallePedido)
+                        limpiarLista()
+                        verDialogo.value = false
+                    }
+                )
+            }
+
+            if (ListaDetallePedido.isNotEmpty()) {
+                LazyColumn(modifier = Modifier.fillMaxHeight(0.85f)) {
+                    items(ListaDetallePedido) { element ->
+                        val stockDisponible = stockMap[element.id_producto] ?: 0
+                        ElementosDetallePedido(detallePedidoEntidad = element, stock = stockDisponible, onAdd = {
+                            if (element.cantidad < stockDisponible) {
+                                element.cantidad++
+                                element.subtotal = element.precio_unitario * element.cantidad
+                                total.value = calcularTotal()
+                            }
+                        }, onDelete = {
+                            element.cantidad--
+                            element.subtotal = element.precio_unitario * element.cantidad
+                            total.value = calcularTotal()
+
+                            if (element.cantidad == 0) {
+                                ListaDetallePedido.remove(element)
+                            }
+                        })
+                    }
+                }
+
+                Row(
+                    modifier = Modifier.fillMaxWidth(),
+                    horizontalArrangement = Arrangement.SpaceAround
+                ) {
+                    BotonGenericoLista(texto = "Cancelar", icono = Icons.Default.Clear) {
+                        limpiarLista()
+                    }
+                    BotonGenericoLista(texto = "Finalizar", icono = Icons.Default.Add) {
+                        verDialogo.value = true
+                    }
+                }
+            } else {
+                Text(
+                    text = "No hay productos\n\nseleccionados",
+                    modifier = Modifier.fillMaxWidth(),
+                    fontSize = 30.sp,
+                    fontWeight = FontWeight.Bold,
+                    textAlign = TextAlign.Center,
+                    color = Color(0xFFBF360C) // Rojo quemado
+                )
+            }
+        }
+    }
+}*/
+
+@Composable
+fun ListaPedidoNew() {
+    val FRClientes = ManejadorClientes()
+    val FRPedido = ManejadorPedidos()
+    val FRProductos = ManejadorProductos()
+    val total = remember { mutableStateOf(0.0) }
+    val verDialogo = remember { mutableStateOf(false) }
+    val stockMap = remember { mutableStateMapOf<String, Int>() }
+
+    // Crear una copia reactiva de ListaDetallePedido
+    val listaCopia = remember { mutableStateListOf<DetallePedidoEntidad>() }
+
+    // Sincronizar la lista local con la global al cargar la vista
+    LaunchedEffect(ListaDetallePedido) {
+        listaCopia.clear()
+        listaCopia.addAll(ListaDetallePedido)
+    }
+
+    // Cargar el stock inicial para todos los productos
+    LaunchedEffect(Unit) {
+        listaCopia.forEach { detalle ->
+            FRProductos.obtenerStockActual(detalle.id_producto) { stockActual ->
+                if (stockActual != null) {
+                    stockMap[detalle.id_producto] = stockActual
+                }
+            }
+        }
+    }
+
+    Box(
+        modifier = Modifier
+            .fillMaxSize()
+            .padding(top = 40.dp, start = 20.dp, end = 20.dp)
+            .shadow(50.dp, shape = RoundedCornerShape(16.dp))
+            .background(Color(0XFFFFEBEB), shape = RoundedCornerShape(16.dp))
+    ) {
+        Column(modifier = Modifier.fillMaxSize(), verticalArrangement = Arrangement.SpaceAround) {
+            if (verDialogo.value) {
+                total.value = listaCopia.sumOf { it.subtotal } // Usar la copia para el cálculo
+                DialogoCliente(
+                    cancelaAction = { verDialogo.value = false },
+                    aceptaAction = { cliente ->
+                        FRClientes.agregarCliente(cliente)
+                        FRPedido.agregarPedidoConDetallesAnidados(
+                            PedidoEntidad(
+                                id_cliente = cliente.id_cliente!!,
+                                nombre_cliente = cliente.nombre_lower,
+                                fecha_pedido = Timestamp.now(),
+                                total = total.value,
+                                estado = "Pendiente"
+                            ),
+                            listaCopia, // Usar la copia para enviar los detalles
+                            onSuccess = { Log.d("Firestore", "Pedido agregado") },
+                            onFailure = { e -> Log.e("Firestore", "Error al agregar pedido", e) }
+                        )
+                        FRProductos.actualizarStockPorDetalles(listaCopia)
+                        listaCopia.clear()
+                        verDialogo.value = false
+                    }
+                )
+            }
+
+            if (listaCopia.isNotEmpty()) {
+                LazyColumn(modifier = Modifier.fillMaxHeight(0.85f)) {
+                    items(listaCopia, key = { it.id_producto }) { element ->
+                        val stockDisponible = stockMap[element.id_producto] ?: 0
+                        ElementosDetallePedido(detallePedidoEntidad = element, stock = stockDisponible, onAdd = {
+                            if (element.cantidad < stockDisponible) {
+                                element.cantidad++
+                                element.subtotal = element.precio_unitario * element.cantidad
+                                total.value = listaCopia.sumOf { it.subtotal }
+                                // Sincronizar con la lista global
+                                ListaDetallePedido.clear()
+                                ListaDetallePedido.addAll(listaCopia)
+                            }
+                        }, onDelete = {
+                            element.cantidad--
+                            element.subtotal = element.precio_unitario * element.cantidad
+                            total.value = listaCopia.sumOf { it.subtotal }
+
+                            if (element.cantidad == 0) {
+                                listaCopia.remove(element)
+                            }
+                            // Sincronizar con la lista global
+                            ListaDetallePedido.clear()
+                            ListaDetallePedido.addAll(listaCopia)
+                        })
+                    }
+                }
+
+                Row(
+                    modifier = Modifier.fillMaxWidth(),
+                    horizontalArrangement = Arrangement.SpaceAround
+                ) {
+                    BotonGenericoLista(texto = "Cancelar", icono = Icons.Default.Clear) {
+                        listaCopia.clear()
+                        ListaDetallePedido.clear() // Limpiar también la lista global
+                    }
+                    BotonGenericoLista(texto = "Finalizar", icono = Icons.Default.Add) {
+                        verDialogo.value = true
+                    }
+                }
+            } else {
                 Text(
                     text = "No hay productos\n\nseleccionados",
                     modifier = Modifier.fillMaxWidth(),

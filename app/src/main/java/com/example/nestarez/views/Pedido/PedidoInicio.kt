@@ -119,7 +119,7 @@ fun PedidoInicio() {
                             )
                             Spacer(modifier = Modifier.weight(1f)) // Espacio flexible
                             Text(
-                                text = "S/ ${element.total.toString()}",
+                                text = "S/ ${element.total}",
                                 color = Color.Black,
                                 fontFamily = fontInria,
                                 fontSize = 16.sp,

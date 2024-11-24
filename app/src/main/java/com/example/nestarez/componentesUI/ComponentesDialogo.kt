@@ -188,6 +188,49 @@ fun DialogoAgregar(
     )
 }
 
+@Composable
+fun DialogMesagge(mensaje: String, onDismiss: () -> Unit) {
+    AlertDialog(
+        containerColor = Color(0xFFFBE9E7), // Fondo melocotón suave
+        onDismissRequest = { onDismiss() }, // Permite cerrar al tocar fuera
+        title = {
+            Text(
+                text = "Mensaje",
+                fontSize = 20.sp,
+                fontWeight = FontWeight.Bold,
+                color = Color(0xFFBF360C), // Rojo quemado
+                fontFamily = fontFredoka,
+                textAlign = TextAlign.Center
+            )
+        },
+        text = {
+            Text(
+                text = mensaje,
+                fontSize = 16.sp,
+                color = Color(0xFF4E342E), // Marrón oscuro
+                fontFamily = fontInria,
+                textAlign = TextAlign.Center
+            )
+        },
+        confirmButton = {
+            Button(
+                onClick = { onDismiss() }, // Cierra el diálogo
+                colors = ButtonDefaults.buttonColors(
+                    containerColor = Color(0xFFD84315), // Naranja quemado
+                    contentColor = Color.White // Texto blanco
+                ),
+                shape = RoundedCornerShape(8.dp) // Bordes redondeados
+            ) {
+                Text(
+                    text = "OK",
+                    fontSize = 16.sp,
+                    fontWeight = FontWeight.Bold
+                )
+            }
+        },
+        dismissButton = {}
+    )
+}
 
 @Composable
 fun DialogoConfirm(mensaje: String, cancelaAction: () -> Unit, aceptaAction: () -> Unit) {
@@ -508,7 +551,8 @@ fun DialogoCliente(cancelaAction: () -> Unit, aceptaAction: (ClienteEntidad) -> 
         }
     }
 
-    val isFormValid = nombre.isNotEmpty() && DNI.isNotEmpty() && DNI.length in 8..11
+    val isFormValid = nombre.isNotEmpty() && DNI.isNotEmpty()
+    val dniValid = DNI.length == 8 || DNI.length == 11
 
     AlertDialog(
         containerColor = Color(0xFFFBE9E7),
@@ -538,14 +582,19 @@ fun DialogoCliente(cancelaAction: () -> Unit, aceptaAction: (ClienteEntidad) -> 
             Button(
                 onClick = {
                     if (isFormValid) {
-                        val cliente = ClienteEntidad(
-                            DNI,
-                            nombre,
-                            nombre.lowercase(),
-                            direccion,
-                            telefono
-                        )
-                        aceptaAction(cliente)
+                        if(dniValid){
+                            val cliente = ClienteEntidad(
+                                DNI,
+                                nombre,
+                                nombre.lowercase(),
+                                direccion,
+                                telefono
+                            )
+                            aceptaAction(cliente)
+                        }else{
+                            MensajeToast(contexto,"DNI debe tener 8 digitos o RUC debe tener 11 digitos")
+                        }
+
                     } else {
                         // Puedes mostrar un mensaje de error
                         MensajeToast(contexto, "Complete los campos Obligatorios")

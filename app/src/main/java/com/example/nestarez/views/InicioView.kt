@@ -48,7 +48,6 @@ import com.example.nestarez.navegacion.ElementoNav
 import com.example.nestarez.componentesUI.BotonNav
 import com.example.nestarez.componentesUI.TopBarra
 
-@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun PrincipalView(navController: NavController) {
 
@@ -57,15 +56,12 @@ fun PrincipalView(navController: NavController) {
         topBar = { TopBarra(titulo = "¡Bienvenido!", colorBarra = Color(0xFFFF683F)) }
     ) { innerPadding ->
         Box(modifier = Modifier.fillMaxSize()) {
-            // La imagen ocupa toda la pantalla
             Image(
                 painter = painterResource(id = R.drawable.fondo_ui),
                 contentDescription = "Logo",
                 modifier = Modifier.fillMaxSize(),
-                contentScale = ContentScale.Crop // Ajusta la imagen para llenar todo el espacio
+                contentScale = ContentScale.Crop
             )
-
-
             Column(
                 modifier = Modifier
                     .fillMaxSize()
@@ -73,7 +69,7 @@ fun PrincipalView(navController: NavController) {
                 verticalArrangement = Arrangement.Center,
                 horizontalAlignment = Alignment.CenterHorizontally
             ) {
-                Text("Nestarez",style = TextStyle(fontSize = 30.sp, fontWeight = FontWeight.Bold),)
+                Text("Nestarez",style = TextStyle(fontSize = 40.sp, fontWeight = FontWeight.Bold), color = Color.White)
                 Box(
                     modifier = Modifier
                         .fillMaxSize()
@@ -89,14 +85,6 @@ fun PrincipalView(navController: NavController) {
                         verticalArrangement = Arrangement.SpaceAround
                     ) {
                         Row(modifier = Modifier.height(65.dp)) {
-                            /*Image(
-                                painter = painterResource(id = R.drawable.pan),
-                                contentDescription = ""
-                            )
-                            Image(
-                                painter = painterResource(id = R.drawable.pastel),
-                                contentDescription = ""
-                            )*/
                         }
                         BotonNav(
                             icono = ImageVector.vectorResource(id = R.drawable.add),
@@ -137,86 +125,6 @@ fun PrincipalView(navController: NavController) {
                     contentDescription = "", modifier = Modifier.size(150.dp)
                 )
             }
-            /*Box(
-                modifier = Modifier
-                    .fillMaxSize().padding(innerPadding)
-            ) {
-                Image(
-                    painter = painterResource(id = R.drawable.pan),
-                    contentDescription = "Pan",
-                    modifier = Modifier
-                        .size(100.dp)
-                        .align(Alignment.TopStart)
-                        .offset(y = (50).dp) // Mitad sobre el fondo
-                        .zIndex(1f) // Asegura que esté encima del Box
-                )
-                Image(
-                    painter = painterResource(id = R.drawable.pastel),
-                    contentDescription = "Pastel",
-                    modifier = Modifier
-                        .size(200.dp)
-                        .align(Alignment.TopEnd)
-                        .offset(y = (-250).dp) // Mitad sobre el fondo
-                        .zIndex(1f)
-                )
-            }*/
-
-
-            // Texto
-
         }
-        /*Box(
-            modifier = Modifier
-                .fillMaxSize()
-                .padding(innerPadding)
-        ) {
-            Image(
-                painter = painterResource(id = R.drawable.pan),
-                contentDescription = "Pan",
-                modifier = Modifier
-                    .size(100.dp)
-                    .align(Alignment.TopStart)
-                    .offset(y = (50).dp) // Mitad sobre el fondo
-                    .zIndex(1f) // Asegura que esté encima del Box
-            )
-            Image(
-                painter = painterResource(id = R.drawable.pastel),
-                contentDescription = "Pastel",
-                modifier = Modifier
-                    .size(100.dp)
-                    .align(Alignment.TopEnd)
-                    .offset(y = (-50).dp) // Mitad sobre el fondo
-                    .zIndex(1f)
-            )
-
-        }*/
-        /*Column(
-            modifier = Modifier
-                .padding(innerPadding)
-                .padding(10.dp)
-        ) {
-
-            Row(modifier = Modifier.fillMaxWidth()) {
-                BotonNav(
-                    icono = Icons.Default.Add,
-                    texto = "Nuevo\nPedido",
-                    0.5f,
-                    Color(0xFF2571c6)
-                ) {
-                    navController.navigate(ElementoNav.PedidosNewPrincipal.ruta)
-                }
-                BotonNav(
-                    icono = Icons.Default.Checklist,
-                    texto = "Lista\nPedidos",
-                    1f,
-                    Color(0xFF2571c6)
-                ) {
-                    navController.navigate(ElementoNav.PedidoPrincipal.ruta)
-                }
-            }
-            BotonNav(icono = Icons.Default.Cake, texto = "\nProductos", 0.5f, Color(0xFF2571c6)) {
-                navController.navigate(ElementoNav.ProductosPrincipal.ruta)
-            }
-        }*/
     }
 }

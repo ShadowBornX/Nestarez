@@ -33,6 +33,7 @@ import com.example.nestarez.LogicaNegocio.ManejadorF.ManejadorProductos
 import com.example.nestarez.componentesUI.BotonGenerico
 import com.example.nestarez.componentesUI.CajaTextoGenerico
 import com.example.nestarez.componentesUI.CajaTextoGenericoIcon
+import com.example.nestarez.componentesUI.DialogMesagge
 import com.example.nestarez.componentesUI.DialogoAgregar
 import com.example.nestarez.componentesUI.DialogoDetalles
 import com.example.nestarez.componentesUI.DialogoEditar
@@ -43,17 +44,14 @@ import com.example.nestarez.componentesUI.ElementosProductoPedidoNew
 @Composable
 fun InicioPedidoNew() {
 
-
     var productoB by remember { mutableStateOf("") }
-
     val FRproducto = ManejadorProductos()
     val listaproductos by FRproducto.buscarProductosPorNombreI(productoB.toUpperCase())
         .collectAsState(initial = emptyList())
     val contexto = LocalContext.current
-
     val valLetra = remember { Regex("[A-Za-z\\s]*") }
-
     var abrirDialogoAgregar by remember { mutableStateOf(false) }
+    var abrirDialogoMesagge by remember { mutableStateOf(false) }
     var seleccionProducto by remember { mutableStateOf<ProductoEntidad?>(null) }
     Box(
         modifier = Modifier
@@ -79,21 +77,27 @@ fun InicioPedidoNew() {
             }
             Spacer(modifier = Modifier.height(20.dp))
 
-            //Habilitar los dialogos
             if (abrirDialogoAgregar && seleccionProducto != null) {
                 DialogoAgregar(producto = seleccionProducto!!) {
                     abrirDialogoAgregar = false
-                    /*var DPedido = DetallePedidoEntidad(null,"",
-                        seleccionProducto!!.id_producto.toString(),1,1.0,1.0)
-                    ListaDetallePedido.add(DPedido)*/
+                }
+            }
+            if (abrirDialogoMesagge && seleccionProducto != null) {
+                DialogMesagge(mensaje = "Producto sin Stock") {
+                    abrirDialogoMesagge = false
                 }
             }
 
             LazyColumn {
                 items(listaproductos) { element ->
                     ElementosProductoPedidoNew(producto = element) {
-                        seleccionProducto = element
-                        abrirDialogoAgregar = true
+                        if(element.stock == 0){
+                            seleccionProducto = element
+                            abrirDialogoMesagge = true
+                        } else {
+                            seleccionProducto = element
+                            abrirDialogoAgregar = true
+                        }
                     }
 
                 }

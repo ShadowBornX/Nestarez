@@ -119,16 +119,6 @@ fun MensajeToast(context: Context, mensaje: String) {
 }
 
 @Composable
-fun CajaTextoGenericoi(valor: String, label: String, onvalue: (String) -> Unit) {
-    OutlinedTextField(
-        value = valor,
-        label = { Text(text = label) },
-        onValueChange = onvalue,
-        //modifier = Modifier.fillMaxWidth()
-    )
-}
-
-@Composable
 fun CajaTextoGenerico(
     valor: String,
     label: String,
@@ -396,8 +386,9 @@ fun TopBarra(titulo: String, colorBarra: Color) {
                 Text(
                     text = titulo,
                     style = TextStyle(fontSize = 30.sp, fontWeight = FontWeight.Bold),
-                    modifier = Modifier.align(Alignment.BottomStart), // Alinear en el centro
-                    textAlign = TextAlign.Left
+                    modifier = Modifier.align(Alignment.BottomStart),
+                    textAlign = TextAlign.Left,
+                    color = Color.White
                 )
             }
         },
@@ -438,13 +429,6 @@ fun TopBarraRetorno(titulo: String, colorBarra: Color, onclick: () -> Unit) {
 }
 
 @Composable
-fun BotonFlotante(onclick: () -> Unit) {
-    FloatingActionButton(onClick = onclick) {
-        Icon(imageVector = Icons.Default.Add, contentDescription = null)
-    }
-}
-
-@Composable
 fun IconButtonGenerico(icono: ImageVector, color: Color, onclick: () -> Unit) {
     IconButton(onClick = { onclick() }) {
         Icon(
@@ -463,96 +447,12 @@ fun IconButtonGenerico(icono: ImageVector, onclick: () -> Unit) {
             imageVector = icono,
             contentDescription = icono.name,
             tint = Color.Black,
-            modifier = Modifier.size(25.dp)
+            modifier = Modifier.size(20.dp)
         )
     }
 }
 
 
-@Composable
-fun DialogoPersonalisado(visible: Boolean, cancelaAction: () -> Unit, aceptaAction: () -> Unit) {
-    if (visible) {
-        AlertDialog(
-            title = { Text(text = "Confirmacion") },
-            text = { Text(text = "¿Desea Eliminar?") },
-            onDismissRequest = { /*TODO*/ },
-            confirmButton = {
-                TextButton(onClick = { aceptaAction() }) {
-                    Text(text = "Aceptar")
-                }
-            },
-            dismissButton = {
-                TextButton(onClick = { cancelaAction() }) {
-                    Text(text = "Cancelar", color = Color.Red)
-                }
-            })
-    }
-}
-
-@Composable
-fun ElementosProducto(
-    producto: ProductoEntidad,
-    onDetail: () -> Unit,
-    onEdit: () -> Unit,
-    onDelete: () -> Unit
-) {
-    Card(
-        modifier = Modifier
-            .fillMaxWidth()
-            .padding(5.dp),
-        colors = CardDefaults.cardColors(Color(0xFFFFD4BC))
-    ) {
-        Row(
-            modifier = Modifier
-                .fillMaxWidth()
-                .padding(15.dp),
-            horizontalArrangement = Arrangement.SpaceBetween,
-            verticalAlignment = Alignment.CenterVertically
-        ) {
-            Column(
-                modifier = Modifier.fillMaxWidth(0.80f),
-                verticalArrangement = Arrangement.SpaceEvenly
-            ) {
-                Text(
-                    text = producto.nombre_producto,
-                    fontWeight = FontWeight.Bold,
-                    color = Color.Black,
-                    fontSize = 20.sp,
-                    fontFamily = FontFamily(typeface = Typeface.DEFAULT_BOLD)
-                )
-                Row(verticalAlignment = Alignment.CenterVertically) {
-                    Text(
-                        text = "S/ ${producto.precio}", color = Color(0xFFA44949),
-                        fontFamily = FontFamily(typeface = Typeface.MONOSPACE)
-                    )
-                    Spacer(modifier = Modifier.width(10.dp))
-                    IconButtonGenerico(icono = ImageVector.vectorResource(id = R.drawable.info)) { onDetail() }
-                    IconButtonGenerico(icono = ImageVector.vectorResource(id = R.drawable.edit)) { onEdit() }
-                    IconButtonGenerico(icono = ImageVector.vectorResource(id = R.drawable.delete)) { onDelete() }
-                }
-            }
-            Icon(
-                imageVector = obtenerIconoPorCategoria(producto.categoria),
-                contentDescription = null,
-                modifier = Modifier.size(50.dp),
-                tint = Color(0xFF996262)
-            )
-            /*VerticalDivider(modifier = Modifier.padding(3.dp))
-            Column(
-                verticalArrangement = Arrangement.SpaceEvenly
-            ) {
-                Text(text = "S/${producto.precio}")
-                Text(text = "Stock:\n${producto.stock}")
-            }
-            VerticalDivider(modifier = Modifier.padding(3.dp))*/
-
-
-        }
-    }
-    Spacer(modifier = Modifier.padding(2.dp))
-    //invocar a la funcion del dialogo
-
-}
 
 @Composable
 fun obtenerIconoPorCategoria(categoria: String): ImageVector {
@@ -561,71 +461,6 @@ fun obtenerIconoPorCategoria(categoria: String): ImageVector {
         "pan" -> ImageVector.vectorResource(id = R.drawable.pan)
         "postre" -> ImageVector.vectorResource(id = R.drawable.icecream)
         else -> Icons.Filled.Help // Icono por defecto para categorías no reconocidas
-    }
-}
-
-
-@OptIn(ExperimentalMaterial3Api::class)
-@Composable
-fun SpinnerMenu2(
-    lista: List<String>,
-    label: String,
-    productoIn: String,
-    onvalue: (String) -> Unit
-) {
-    // Lista de elementos para el dropdown
-
-    var expanded by remember { mutableStateOf(false) }
-    var selectedOption by remember { mutableStateOf(productoIn) }
-
-    // Caja de menú desplegable
-    ExposedDropdownMenuBox(
-        modifier = Modifier.fillMaxWidth(),
-        expanded = expanded,
-        onExpandedChange = { expanded = !expanded }) {
-        // Campo de texto que muestra la opción seleccionada
-        OutlinedTextField(
-            readOnly = true,
-            value = selectedOption,
-            onValueChange = {},
-            label = { Text(label) },
-            trailingIcon = {
-                ExposedDropdownMenuDefaults.TrailingIcon(expanded = expanded)
-            },
-            modifier = Modifier
-                .fillMaxWidth()
-                .menuAnchor(),
-            colors = ExposedDropdownMenuDefaults.outlinedTextFieldColors(
-                focusedBorderColor = Color(0xFF004481),
-                focusedLabelColor = Color(0xFF004481),
-                unfocusedBorderColor = Color.Gray,
-            )
-        )
-
-        // Menú desplegable
-        DropdownMenu(
-            modifier = Modifier.exposedDropdownSize(),
-            expanded = expanded,
-            onDismissRequest = { expanded = false }  // Cambiado a false para cerrar el menú
-        ) {
-            lista.forEach { option ->
-                DropdownMenuItem(
-                    text = {
-                        Text(
-                            option,
-                            color = if (option == selectedOption) Color.White else Color.Unspecified
-                        )
-                    },
-                    onClick = {
-                        selectedOption = option  // Actualiza la opción seleccionada
-                        expanded = false  // Cierra el menú
-                        onvalue(option)
-                    },
-                    contentPadding = ExposedDropdownMenuDefaults.ItemContentPadding,
-                    modifier = Modifier.background(if (option == selectedOption) Color(0xFF004481) else Color.Transparent)
-                )
-            }
-        }
     }
 }
 
@@ -722,80 +557,26 @@ fun SpinnerMenu(
 }
 
 
-@Composable
-fun ElementosProductoPedidoNew(
-    producto: ProductoEntidad,
-    onAdd: () -> Unit,
-) {
-    Card(
-        modifier = Modifier
-            .fillMaxWidth()
-            .padding(5.dp),
-        colors = CardDefaults.cardColors(Color(0XFFFFD4BC))
-    ) {
-        Row(
-            modifier = Modifier
-                .padding(5.dp)
-                .fillMaxWidth(),
-            verticalAlignment = Alignment.CenterVertically
-        ) {
-            Column(
-                modifier = Modifier.fillMaxWidth(0.75f),
-                verticalArrangement = Arrangement.SpaceEvenly
-            ) {
-                Text(
-                    text = producto.nombre_producto,
-                    fontWeight = FontWeight.Bold,
-                    color = Color.Black,
-                    fontSize = 20.sp
-                )
-                Text(text = "S/${producto.precio}", color = Color.Black)
-            }
-            IconButton(onClick = { onAdd() }) {
-                Icon(
-                    imageVector = ImageVector.vectorResource(id = R.drawable.add),
-                    contentDescription = "",
-                    tint = Color(0xFF5B2626)
-                )
-            }
-        }
-    }
-
-    Spacer(modifier = Modifier.padding(2.dp))
-    //invocar a la funcion del dialogo
-
-}
-
-
-
 
 @Composable
 fun DatePickerIcon(
-    onDateSelected: (Timestamp) -> Unit // Callback para devolver la fecha como Timestamp
+    onDateSelected: (Timestamp) -> Unit
 ) {
     val context = LocalContext.current
-
-    // Obtener la fecha actual
     val calendar = Calendar.getInstance()
     val year = calendar.get(Calendar.YEAR)
     val month = calendar.get(Calendar.MONTH)
     val day = calendar.get(Calendar.DAY_OF_MONTH)
-
-    // Crear DatePickerDialog
     val datePickerDialog = DatePickerDialog(
         context,
         { _: DatePicker, year: Int, month: Int, dayOfMonth: Int ->
-            // Formatear la fecha seleccionada como Timestamp
-            //selectedDate = "$dayOfMonth/${month + 1}/$year" // Mostrar la fecha como texto
             calendar.set(year, month, dayOfMonth)
-            val selectedTimestamp = Timestamp(calendar.time) // Convertir a Timestamp
+            val selectedTimestamp = Timestamp(calendar.time)
             Log.d("DatePicker", "Fecha seleccionada: $selectedTimestamp")
             onDateSelected(selectedTimestamp)
         }, year, month, day
     )
-
     datePickerDialog.datePicker.maxDate = calendar.timeInMillis
-
     IconButton(onClick = { datePickerDialog.show() }) {
         Icon(
             imageVector = Icons.Default.CalendarMonth,

@@ -1,5 +1,7 @@
 package com.example.nestarez.LogicaNegocio.ManejadorF
 
+import android.util.Log
+import com.example.nestarez.LogicaNegocio.Entidades.DetallePedidoEntidad
 import com.example.nestarez.LogicaNegocio.Entidades.ProductoEntidad
 import com.google.firebase.firestore.FirebaseFirestore
 import kotlinx.coroutines.channels.awaitClose
@@ -15,23 +17,6 @@ class ManejadorProductos {
         dbProductos.document(key).set(producto)
     }
 
-    fun obtenerProductos(): Flow<List<ProductoEntidad>> {
-        val flujo = callbackFlow {
-            val listener = dbProductos.addSnapshotListener { snapshot, e ->
-                if (e != null) {
-                    close(e)
-                    return@addSnapshotListener
-                }
-                val lista = snapshot?.documents?.mapNotNull { doc ->
-                    doc.toObject(ProductoEntidad::class.java)?.copy(id_producto = doc.id)
-                } ?: listOf()
-                trySend(lista).isSuccess
-            }
-            awaitClose { listener.remove() }
-        }
-        return flujo
-    }
-
     fun actualizarProducto(producto: ProductoEntidad) {
         producto.id_producto?.let {
             dbProductos.document(it).set(producto)
@@ -42,49 +27,89 @@ class ManejadorProductos {
         dbProductos.document(id_producto).delete()
     }
 
-    fun buscarProductosPorNombreAD(query: String): Flow<List<ProductoEntidad>> {
-        val flujo = callbackFlow {
-            val listener = dbProductos.addSnapshotListener { snapshot, e ->
-                if (e != null) {
-                    close(e)
-                    return@addSnapshotListener
-                }
-                val lista = snapshot?.documents?.mapNotNull { doc ->
-                    doc.toObject(ProductoEntidad::class.java)?.copy(id_producto = doc.id)
-                }?.filter { producto ->
-                    producto.nombre_producto.contains(
-                        query,
-                        ignoreCase = true
-                    ) // Filtrado por '%query%'
-                } ?: listOf()
-                trySend(lista).isSuccess
+    // Actualizar el stock de un producto
+    fun actualizarStock(idProducto: String, nuevoStock: Int) {
+        dbProductos.document(idProducto).update("stock", nuevoStock)
+            .addOnSuccessListener {
+                Log.d("ManejadorProductos", "Stock actualizado correctamente para $idProducto")
             }
-            awaitClose { listener.remove() }
-        }
-        return flujo
+            .addOnFailureListener { e ->
+                Log.e("ManejadorProductos", "Error al actualizar el stock de $idProducto", e)
+            }
     }
 
-    fun buscarProductosPorNombre2(query: String): Flow<List<ProductoEntidad>> {
-        val flujo = callbackFlow {
-            // Generar el rango para la búsqueda
-            val finalQuery = query + "\uf8ff"  // Sufijo para limitar el rango
-            val listener = dbProductos
-                .whereGreaterThanOrEqualTo("nombre", query)
-                .whereLessThanOrEqualTo("nombre", finalQuery)
-                .addSnapshotListener { snapshot, e ->
-                    if (e != null) {
-                        close(e)
-                        return@addSnapshotListener
-                    }
-                    val lista = snapshot?.documents?.mapNotNull { doc ->
-                        doc.toObject(ProductoEntidad::class.java)?.copy(id_producto = doc.id)
-                    } ?: listOf()
-                    trySend(lista).isSuccess
+    // Obtener el stock actual de un producto
+    fun obtenerStockActual(idProducto: String, onResult: (Int?) -> Unit) {
+        dbProductos.document(idProducto).get()
+            .addOnSuccessListener { document ->
+                if (document.exists()) {
+                    val stockActual = document.getLong("stock")?.toInt() ?: 0
+                    onResult(stockActual)
+                } else {
+                    Log.e("ObtenerStock", "Producto no encontrado: $idProducto")
+                    onResult(null)
                 }
-            awaitClose { listener.remove() }
-        }
-        return flujo
+            }
+            .addOnFailureListener { e ->
+                Log.e("ObtenerStock", "Error al obtener stock para $idProducto", e)
+                onResult(null)
+            }
     }
+
+    // Actualizar stock en base a una lista de detalles de pedido
+    fun actualizarStockPorDetalles(listaDetalles: List<DetallePedidoEntidad>) {
+        listaDetalles.forEach { detalle ->
+            obtenerStockActual(detalle.id_producto) { stockActual ->
+                if (stockActual != null) {
+                    val stockNuevo = stockActual - detalle.cantidad
+                    if (stockNuevo >= 0) {
+                        actualizarStock(detalle.id_producto, stockNuevo)
+                    } else {
+                        Log.e(
+                            "ActualizarStock",
+                            "Stock insuficiente para el producto ${detalle.id_producto}"
+                        )
+                    }
+                } else {
+                    Log.e(
+                        "ActualizarStock",
+                        "No se pudo obtener el stock para ${detalle.id_producto}"
+                    )
+                }
+            }
+        }
+    }
+
+    // Alternativa: Actualizar stock usando transacciones (recomendado para atomicidad)
+    fun actualizarStockConTransaccion(
+        listaDetalles: List<DetallePedidoEntidad>,
+        onComplete: (Boolean) -> Unit
+    ) {
+        val db = FirebaseFirestore.getInstance()
+
+        db.runTransaction { transaction ->
+            listaDetalles.forEach { detalle ->
+                val productoRef = dbProductos.document(detalle.id_producto)
+                val snapshot = transaction.get(productoRef)
+                val stockActual = snapshot.getLong("stock")?.toInt()
+                    ?: throw Exception("Stock no encontrado para ${detalle.id_producto}")
+
+                val stockNuevo = stockActual - detalle.cantidad
+                if (stockNuevo >= 0) {
+                    transaction.update(productoRef, "stock", stockNuevo)
+                } else {
+                    throw Exception("Stock insuficiente para ${detalle.id_producto}")
+                }
+            }
+        }.addOnSuccessListener {
+            Log.d("ActualizarStock", "Transacción completada con éxito")
+            onComplete(true)
+        }.addOnFailureListener { e ->
+            Log.e("ActualizarStock", "Error durante la transacción", e)
+            onComplete(false)
+        }
+    }
+
 
     fun buscarProductosPorNombreI(query: String): Flow<List<ProductoEntidad>> {
         val flujo = callbackFlow {
