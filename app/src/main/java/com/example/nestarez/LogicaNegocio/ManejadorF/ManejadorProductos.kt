@@ -80,37 +80,6 @@ class ManejadorProductos {
         }
     }
 
-    // Alternativa: Actualizar stock usando transacciones (recomendado para atomicidad)
-    fun actualizarStockConTransaccion(
-        listaDetalles: List<DetallePedidoEntidad>,
-        onComplete: (Boolean) -> Unit
-    ) {
-        val db = FirebaseFirestore.getInstance()
-
-        db.runTransaction { transaction ->
-            listaDetalles.forEach { detalle ->
-                val productoRef = dbProductos.document(detalle.id_producto)
-                val snapshot = transaction.get(productoRef)
-                val stockActual = snapshot.getLong("stock")?.toInt()
-                    ?: throw Exception("Stock no encontrado para ${detalle.id_producto}")
-
-                val stockNuevo = stockActual - detalle.cantidad
-                if (stockNuevo >= 0) {
-                    transaction.update(productoRef, "stock", stockNuevo)
-                } else {
-                    throw Exception("Stock insuficiente para ${detalle.id_producto}")
-                }
-            }
-        }.addOnSuccessListener {
-            Log.d("ActualizarStock", "Transacción completada con éxito")
-            onComplete(true)
-        }.addOnFailureListener { e ->
-            Log.e("ActualizarStock", "Error durante la transacción", e)
-            onComplete(false)
-        }
-    }
-
-
     fun buscarProductosPorNombreI(query: String): Flow<List<ProductoEntidad>> {
         val flujo = callbackFlow {
             // Si el query está vacío, devolvemos todos los productos

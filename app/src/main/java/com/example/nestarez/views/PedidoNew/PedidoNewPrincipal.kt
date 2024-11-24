@@ -39,7 +39,6 @@ fun PrincipalPedidoNew(navController: NavController) {
         bottomBar = { NIPedidoNew(navControlador = navControlador) }
     ) { innerPadding ->
         Box(modifier = Modifier.fillMaxSize()) {
-            // La imagen ocupa toda la pantalla
             Image(
                 painter = painterResource(id = R.drawable.fondo_ui),
                 contentDescription = "Logo",
@@ -47,7 +46,6 @@ fun PrincipalPedidoNew(navController: NavController) {
                 contentScale = ContentScale.Crop // Ajusta la imagen para llenar todo el espacio
             )
             Column(modifier = Modifier.padding(innerPadding)) {
-                //pintado de las vistas
                 ANIPedidoNew(navControlador = navControlador)
             }
         }

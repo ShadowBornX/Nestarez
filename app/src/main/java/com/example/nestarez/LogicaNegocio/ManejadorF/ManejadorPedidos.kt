@@ -189,33 +189,6 @@ class ManejadorPedidos {
         return flujo
     }
 
-
-
-
-
-    fun obtenerPedidosFinalizados(): Flow<List<PedidoEntidad>> {
-        val flujo = callbackFlow {
-            // Consulta solo los pedidos con estado "Pendiente", ordenados por fecha
-            val consulta = dbPedidos
-                .whereEqualTo("estado", "Finalizado")
-                .orderBy("fecha_pedido") // Asegúrate de que fecha_pedido esté en un formato compatible con ordenación
-
-            val listener = consulta.addSnapshotListener { snapshot, e ->
-                if (e != null) {
-                    close(e)
-                    return@addSnapshotListener
-                }
-                val lista = snapshot?.documents?.mapNotNull { doc ->
-                    doc.toObject(PedidoEntidad::class.java)?.copy(id_pedido = doc.id)
-                } ?: listOf()
-                trySend(lista).isSuccess
-            }
-            awaitClose { listener.remove() }
-        }
-        return flujo
-    }
-
-
     fun obtenerDetallesPedido(
         idPedido: String,
         onSuccess: (List<DetallePedidoEntidad>) -> Unit,
