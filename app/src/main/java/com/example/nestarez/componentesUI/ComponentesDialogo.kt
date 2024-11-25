@@ -303,7 +303,9 @@ fun DialogoEditar(
 
     val valLetra = remember { Regex("[A-Za-z\\s]*") }
     val valNum2 = remember { Regex("^\\d+(\\.\\d+)?\$") }
+    val valNumInt = remember { Regex("^\\d+$") }
     val valNum = remember { Regex("^\\d+(\\.\\d+)?\$|^\\d+\\.\$") }
+    val contexto  = LocalContext.current
 
     AlertDialog(
         containerColor = Color(0xFFFBE9E7), // Fondo melocotón suave
@@ -353,7 +355,7 @@ fun DialogoEditar(
                 }
                 Spacer(modifier = Modifier.height(10.dp))
                 CajaTextoGenericoEdit(valor = stock, label = "Stock", true) {
-                    if (it.matches(valNum) || it.isEmpty()) {
+                    if (it.matches(valNumInt) || it.isEmpty()) {
                         stock = it
                     }
                 }
@@ -362,16 +364,28 @@ fun DialogoEditar(
         confirmButton = {
             Button(
                 onClick = {
-                    val elemento = ProductoEntidad(
-                        producto.id_producto,
-                        nombre,
-                        nombre.lowercase(),
-                        descripcion,
-                        categoria,
-                        precio.toDouble(),
-                        stock.toInt()
-                    )
-                    aceptaAction(elemento)
+                    if(nombre.isEmpty()||descripcion.isEmpty()||categoria.isEmpty()||precio.isEmpty()||stock.isEmpty()){
+                        MensajeToast(contexto,"Complete todos los campos")
+                    } else {
+                        if(precio.toDouble()>1000){
+                            MensajeToast(contexto,"El precio no debe ser mayor a 1000")
+                        }else if(stock.toInt()>1000){
+                            MensajeToast(contexto,"El Stock no debe ser mayor a 1000")
+                        } else{
+                            val elemento = ProductoEntidad(
+                                producto.id_producto,
+                                nombre,
+                                nombre.lowercase(),
+                                descripcion,
+                                categoria,
+                                precio.toDouble(),
+                                stock.toInt()
+                            )
+                            aceptaAction(elemento)
+                        }
+
+                    }
+
                 },
                 colors = ButtonDefaults.buttonColors(
                     containerColor = Color(0xFFD84315), // Naranja quemado

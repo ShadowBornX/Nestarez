@@ -101,8 +101,10 @@ fun ProductosNew() {
                 categoria = nuevo
             }
             Spacer(modifier = Modifier.height(15.dp))
-            CajaTextoGenerico(valor = nombre, label = "Nombre", isNum = false,
-                size = 20f) {
+            CajaTextoGenerico(
+                valor = nombre, label = "Nombre", isNum = false,
+                size = 20f
+            ) {
                 if (it.matches(valLetra)) {
                     nombre = it
                 }
@@ -112,33 +114,43 @@ fun ProductosNew() {
                 descripcion = it
             }
             Spacer(modifier = Modifier.height(10.dp))
-            CajaTextoGenerico(valor = precio, label = "Precio", isNum = true,
-                size = 20f) {
-                if (it.matches(valNum)||it.isEmpty()) {
+            CajaTextoGenerico(
+                valor = precio, label = "Precio", isNum = true,
+                size = 20f
+            ) {
+                if (it.matches(valNum) || it.isEmpty()) {
                     precio = it
                 }
             }
             Spacer(modifier = Modifier.height(10.dp))
-            CajaTextoGenerico(valor = stock, label = "Stock", isNum = true,
-                size = 20f) {
-                if (it.matches(valNumInt)||it.isEmpty()) {
+            CajaTextoGenerico(
+                valor = stock, label = "Stock", isNum = true,
+                size = 20f
+            ) {
+                if (it.matches(valNumInt) || it.isEmpty()) {
                     stock = it
                 }
             }
             Spacer(modifier = Modifier.height(20.dp))
             BotonGenerico(texto = "Guardar", icono = Icons.Default.Save) {
                 if (nombre.isNotBlank() || descripcion.isNotBlank() || precio.isNotBlank() || stock.isNotBlank() || categoria.isNotBlank()) {
-
-                    FRproducto.agregarProducto(
-                        ProductoEntidad(
-                            nombre_producto = nombre.toUpperCase(),
-                            descripcion = descripcion,
-                            categoria = categoria,
-                            precio = precio.toDouble(),
-                            stock = stock.toInt()
+                    if (precio.toDouble() > 1000) {
+                        MensajeToast(contexto, "El precio no debe ser mayor a 1000")
+                    } else if (stock.toInt() > 1000) {
+                        MensajeToast(contexto, "El Stock no debe ser mayor a 1000")
+                    } else {
+                        FRproducto.agregarProducto(
+                            ProductoEntidad(
+                                nombre_producto = nombre,
+                                nombre_lower = nombre.lowercase(),
+                                descripcion = descripcion,
+                                categoria = categoria,
+                                precio = precio.toDouble(),
+                                stock = stock.toInt()
+                            )
                         )
-                    )
-                    nombre = "";descripcion = "";precio = "";stock = "";categoria = ""
+                        nombre = "";descripcion = "";precio = "";stock = "";categoria = ""
+                    }
                 } else {
                     MensajeToast(contexto, "Complete todos los campos")
                 }

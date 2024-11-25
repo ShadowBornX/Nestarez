@@ -169,7 +169,7 @@ fun ElementosProducto(
                     horizontalArrangement = Arrangement.SpaceBetween
                 ) {
                     Text(
-                        text = "S/ ${producto.precio}", color = Color(0xFFA44949),
+                        text = "S/. ${"%.2f".format(producto.precio)}", color = Color(0xFFA44949),
                         fontFamily = FontFamily(typeface = Typeface.MONOSPACE),
                         modifier = Modifier.fillMaxWidth(0.4f)
                     )
