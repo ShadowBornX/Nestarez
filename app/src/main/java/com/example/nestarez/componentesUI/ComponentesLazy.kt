@@ -42,7 +42,7 @@ import androidx.compose.ui.unit.sp
 import com.example.nestarez.LogicaNegocio.Entidades.DetallePedidoEntidad
 import com.example.nestarez.LogicaNegocio.Entidades.ProductoEntidad
 import com.example.nestarez.R
-import com.example.nestarez.fonts.fontInria
+import com.example.nestarez.componentesUI.fonts.fontInria
 
 @Composable
 fun ElementosDetallePedido(

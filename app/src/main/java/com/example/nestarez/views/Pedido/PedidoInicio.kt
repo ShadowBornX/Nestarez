@@ -53,7 +53,7 @@ import com.example.nestarez.R
 import com.example.nestarez.componentesUI.CajaTextoGenericoIcon
 import com.example.nestarez.componentesUI.DialogoConfirm
 import com.example.nestarez.componentesUI.TopBarraRetorno
-import com.example.nestarez.fonts.fontInria
+import com.example.nestarez.componentesUI.fonts.fontInria
 
 @Composable
 fun PedidoInicio() {

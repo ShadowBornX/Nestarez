@@ -38,9 +38,9 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.navigation.compose.rememberNavController
-import com.example.nestarez.Listas.ListaDetallePedido
-import com.example.nestarez.Listas.calcularTotal
-import com.example.nestarez.Listas.limpiarLista
+import com.example.nestarez.componentesUI.Listas.ListaDetallePedido
+import com.example.nestarez.componentesUI.Listas.calcularTotal
+import com.example.nestarez.componentesUI.Listas.limpiarLista
 import com.example.nestarez.LogicaNegocio.Entidades.ClienteEntidad
 import com.example.nestarez.LogicaNegocio.Entidades.DetallePedidoEntidad
 import com.example.nestarez.LogicaNegocio.Entidades.PedidoEntidad

@@ -41,7 +41,7 @@ import com.example.nestarez.componentesUI.CajaTextoGenerico
 import com.example.nestarez.componentesUI.CajaTextoGenericoDes
 import com.example.nestarez.componentesUI.MensajeToast
 import com.example.nestarez.componentesUI.SpinnerMenu
-import com.example.nestarez.fonts.fontFredoka
+import com.example.nestarez.componentesUI.fonts.fontFredoka
 
 
 @Composable

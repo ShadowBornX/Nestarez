@@ -53,7 +53,7 @@ import com.example.nestarez.componentesUI.DatePickerIcon
 import com.example.nestarez.componentesUI.DialogoAgregar
 import com.example.nestarez.componentesUI.DialogoConfirm
 import com.example.nestarez.componentesUI.ElementosProductoPedidoNew
-import com.example.nestarez.fonts.fontInria
+import com.example.nestarez.componentesUI.fonts.fontInria
 import com.google.firebase.Timestamp
 import java.text.SimpleDateFormat
 import java.util.*

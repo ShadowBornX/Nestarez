@@ -34,15 +34,15 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import com.example.nestarez.Listas.ListaDetallePedido
+import com.example.nestarez.componentesUI.Listas.ListaDetallePedido
 import com.example.nestarez.LogicaNegocio.Entidades.ClienteEntidad
 import com.example.nestarez.LogicaNegocio.Entidades.DetallePedidoEntidad
 import com.example.nestarez.LogicaNegocio.Entidades.PedidoEntidad
 import com.example.nestarez.LogicaNegocio.Entidades.ProductoEntidad
 import com.example.nestarez.LogicaNegocio.ManejadorF.ManejadorClientes
 import com.example.nestarez.LogicaNegocio.ManejadorF.ManejadorPedidos
-import com.example.nestarez.fonts.fontFredoka
-import com.example.nestarez.fonts.fontInria
+import com.example.nestarez.componentesUI.fonts.fontFredoka
+import com.example.nestarez.componentesUI.fonts.fontInria
 import com.google.firebase.Timestamp
 import java.time.LocalDate
 
@@ -72,7 +72,7 @@ fun DialogoAgregar(
         title = {
             Text(
                 text = "Agregar Producto",
-                fontSize = 20.sp,
+                fontSize = 25.sp,
                 fontWeight = FontWeight.Bold,
                 color = Color(0xFF2E7D32), // Verde oscuro
                 textAlign = TextAlign.Center,
@@ -89,11 +89,12 @@ fun DialogoAgregar(
             ) {
                 Text(
                     text = producto.nombre_producto,
-                    fontSize = 18.sp,
+                    fontSize = 20.sp,
                     fontWeight = FontWeight.Bold,
                     color = Color(0xFF4E342E), // Verde intermedio
                     fontFamily = fontInria,
-                    modifier = Modifier.padding(bottom = 10.dp)
+                    textAlign = TextAlign.Center,
+                    modifier = Modifier.padding(bottom = 10.dp).fillMaxWidth()
                 )
                 Row(
                     modifier = Modifier

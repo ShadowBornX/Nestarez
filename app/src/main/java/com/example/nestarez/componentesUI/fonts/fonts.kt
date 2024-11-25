@@ -1,4 +1,4 @@
-package com.example.nestarez.fonts
+package com.example.nestarez.componentesUI.fonts
 
 import androidx.compose.ui.text.font.Font
 import androidx.compose.ui.text.font.FontFamily

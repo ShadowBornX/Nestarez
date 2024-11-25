@@ -1,4 +1,4 @@
-package com.example.nestarez.Listas
+package com.example.nestarez.componentesUI.Listas
 
 import androidx.compose.runtime.mutableStateListOf
 import com.example.nestarez.LogicaNegocio.Entidades.DetallePedidoEntidad

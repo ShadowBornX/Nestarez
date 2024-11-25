@@ -115,13 +115,13 @@ fun PrincipalView(navController: NavController) {
 
                 }
             }
-            Row(modifier = Modifier.padding(innerPadding).padding(top = 30.dp).fillMaxWidth(), horizontalArrangement = Arrangement.SpaceAround) {
+            Row(modifier = Modifier.padding(innerPadding).padding(top = 20.dp).fillMaxWidth(), horizontalArrangement = Arrangement.SpaceAround) {
                 Image(
-                    painter = painterResource(id = R.drawable.pa),
-                    contentDescription = "", modifier = Modifier.size(150.dp)
+                    painter = painterResource(id = R.drawable.panne),
+                    contentDescription = "", modifier = Modifier.size(200.dp).padding(bottom = 5.dp)
                 )
                 Image(
-                    painter = painterResource(id = R.drawable.pastel),
+                    painter = painterResource(id = R.drawable.tortasf),
                     contentDescription = "", modifier = Modifier.size(150.dp)
                 )
             }

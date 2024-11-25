@@ -54,7 +54,7 @@ import com.example.nestarez.componentesUI.NIPedido
 import com.example.nestarez.componentesUI.NIPedidoNew
 import com.example.nestarez.componentesUI.NIProductos
 import com.example.nestarez.componentesUI.TopBarraRetorno
-import com.example.nestarez.fonts.fontInria
+import com.example.nestarez.componentesUI.fonts.fontInria
 import com.example.nestarez.navegacion.PedidoNew.ANIPedidoNew
 import com.example.nestarez.navegacion.Pedidos.ANIPedido
 import com.example.nestarez.navegacion.Productos.ANIProductos
